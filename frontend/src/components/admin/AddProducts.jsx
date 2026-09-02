@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import Loader from "../common/Loader";
+import { useNavigate } from "react-router-dom";
+import config from "../../../config";
+import Errors from "../common/Errors";
+import { useDispatch } from "react-redux";
+
+const { api_url } = config;
+
+export default function AddProducts() {
+  const [add, setAdd] = useState({
+    name: "",
+    description: "",
+    status: "active",
+    is_featured: "no",
+    price: 0,
+    image: null,
+  });
+
+  const [errors, setErrors] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
+  const handleChange = (e) => {
+    setAdd({ ...add, [e.target.name]: e.target.value });
+  };
+
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors(null);
+    setLoading(true);
+    setSuccess(null);
+
+    try {
+      const res = await fetch(`${api_url}/products`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(add),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        setErrors(result.errors);
+        return;
+      }
+
+       if (image) {
+        const formData = new FormData();
+        formData.append("image", image);
+        formData.append("wine_id", result.wine_id);
+        const imageRes = await fetch(`${api_url}/admin/images`, {
+          method: "POST",
+          body: formData,
+        });
+        const imageResult = await imageRes.json();
+        if (!imageRes.ok) {
+          setErrors(imageResult.errors);
+          return;
+        }
+    }
+
+      setSuccess(result.success);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return (
+    <div>
+      <h2 className="text-center font-bold md:text-xl">Belépés</h2>
+      {loading && <Loader />}
+      {success && (
+        <div className="flex justify-center m-5">
+          <div
+            className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
+            role="alert"
+          >
+            <p className="text-green-900 font-bold ">{success}</p>
+          </div>
+        </div>
+      )}
+      {errors && <Errors errors={errors} />}
+
+      <div>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto"
+        >
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="name"
+            >
+              Termék neve
+            </label>
+            <input
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="name"
+              type="text"
+              name="name"
+              value={add.mame}
+              placeholder="Termék neve"
+            />
+          </div>
+          <div className="mb-6">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="description"
+            >
+              Leírás
+            </label>
+            <textarea
+              onChange={handleChange}
+              className="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
+              id="description"
+              name="description"
+              value={add.description}
+              placeholder="Leírás"
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="name"
+            >
+              Status
+            </label>
+            <select
+              name="status"
+              id="status"
+              value={add.status}
+              onChange={handleChange}
+            >
+              <option value="active">Aktív</option>
+              <option value="block">Inaktív</option>
+            </select>
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="is_featured"
+            >
+              Kiemelt
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="is_featured"
+              type="checkbox"
+              name="is_featured"
+              placeholder="Kiemelt"
+              checked={add.is_featured === "yes"}
+              onChange={(e) =>
+                setAdd({
+                  ...add,
+                  is_featured: e.target.checked ? "yes" : "no",
+                })
+              }
+            />
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="image"
+            >
+              Kép
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="image"
+              type="file"
+              name="image"
+              onChange={(e) =>
+                setAdd({
+                  ...add,
+                  image: e.target.files[0],
+                })
+              }
+            />
+          </div>
+          <div className="flex justify-center">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+              type="submit"
+            >
+              Mentés
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

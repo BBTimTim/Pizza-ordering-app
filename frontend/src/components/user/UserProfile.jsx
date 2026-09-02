@@ -1,9 +1,9 @@
 import React from 'react'
 
-export default function Navbar() {
+export default function UserProfile() {
   return (
     <div>
-      
+      <h1>Udvozlet</h1>
     </div>
   )
 }

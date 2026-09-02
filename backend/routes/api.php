@@ -3,6 +3,8 @@
 use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\SizeController;
 use App\Http\Controllers\admin\ToppingController;
+use App\Http\Controllers\GuestController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,3 +27,8 @@ Route::resource('products', ProductController::class);
 
 Route::get('toppings', [ToppingController::class, 'index']);
 Route::get('sizes', [SizeController::class, 'index']);
+
+Route::post('register', [GuestController::class, 'register']);
+Route::post('login', [GuestController::class, 'login']);
+Route::post('resetpassword', [GuestController::class, 'resetpassword']);
+Route::post('forgetpassword', [GuestController::class, 'forgetpassword']);
