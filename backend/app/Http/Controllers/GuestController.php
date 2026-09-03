@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 
 class GuestController extends Controller
 {
-    public function register(Request $request)
+  public function register(Request $request)
   {
     try {
       $validated = $request->validate([
@@ -26,7 +26,7 @@ class GuestController extends Controller
     }
     $validated['password'] = Hash::make($validated['password']);
     User::create($validated);
-    return response(['success' => 'Sikeres regisztráció!']);
+    return response(['success' => 'Sikeres regisztráció!'], 201);
   }
 
   public function login(Request $request)
@@ -35,31 +35,36 @@ class GuestController extends Controller
       'email' => 'required|email',
       'password' => 'required',
     ]);
+
     $user = User::where('email', $request->email)->first();
-    if (!$user || !Hash::check($request->password, $user->password)) {
+
+    if ($user && Hash::check($request->password, $user->password)) {
+      $token = $user->createToken('mytoken')->plainTextToken;
       return response()->json([
-        'errors' => 'Hibás email vagy jelszó!'
-      ]);
-    }
-    $token = $user->createToken('mytoken')->plainTextToken;
+        'token' => $token
+      ], 200);
+    } 
+
     return response()->json([
-      'token' => $token
+      'errors' => 'Hibás email vagy jelszó!'
     ]);
   }
 
-   public function forgetpassword(Request $request)
-  { 
-    try {
-      $request->validate(['email' => 'required|email']);
-      $status = Password::sendResetLink($request->only('email'));
-      return response()->json([
+  public function forgetpassword(Request $request)
+  {
+    $request->validate([
+        'email' => ['required', 'email'],
+    ]);
+
+    $status = Password::sendResetLink(
+        $request->only('email')
+    );
+
+    return response()->json([
         'message' => $status === Password::RESET_LINK_SENT
-          ? 'Sikeresen elküldtük a jelszó-visszaállító emailt.'
-          : 'Hiba történt, nincs ilyen email cím.'
-      ]);
-    } catch (ValidationException $e) {
-      return response(['errors' => $e->errors()], 422);
-    }
+            ? 'Sikeresen elküldtük a jelszó-visszaállító emailt.'
+            : 'Hiba történt, nincs ilyen email cím.',
+    ], $status === Password::RESET_LINK_SENT ? 200 : 400);
   }
 
   public function resetpassword(Request $request)
@@ -85,6 +90,6 @@ class GuestController extends Controller
       'message' => $status === Password::PASSWORD_RESET
         ? 'Sikeresen módosítottad a jelszavad!.'
         : 'Hiba történt, próbáld meg újra.'
-    ]);
+    ], 200);
   }
 }

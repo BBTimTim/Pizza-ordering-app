@@ -3,7 +3,6 @@ import { useState } from "react";
 import config from "../../../config";
 import { useSearchParams } from "react-router-dom";
 import Loader from "../common/Loader";
-import Errors from "../common/Errors";
 
 const { api_url } = config;
 
@@ -62,7 +61,7 @@ export default function Resetpassword() {
   };
 
   return (
-    <div classNameName="container">
+     <div classNameName="container">
       <h1 classNameName="mt-5 text-center">Új jelszó beállítása</h1>
       {loading && <Loader />}
       {success && (
@@ -72,7 +71,12 @@ export default function Resetpassword() {
             </div>
         </div>
       )}
-     {errors && <Errors errors={errors} />}
+        {errors &&  <div className="flex justify-center m-5">
+               <div className="text-red-900 font-medium bg-red-200 rounded-full px-5 py-2" role="alert">
+              <p className="text-red-900 font-bold ">{errors}</p>
+            </div>
+          </div>
+        }
 
       <div>
           <h2 className="text-center font-bold md:text-xl">Jelszó visszaállítása</h2>
@@ -109,57 +113,6 @@ export default function Resetpassword() {
             </div>
           </form>
       </div>
-
-      <div>
-        <h2 className="text-center font-bold md:text-xl">Belépés</h2>
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto"
-        >
-          <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password"
-            >
-              Jelszó
-            </label>
-            <input
-              onChange={handleChange}
-              className="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-              id="password"
-              name="password"
-              type="password"
-              value={password.password}
-              placeholder="******************"
-            />
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="password_confirmation"
-            >
-              Jelszó megerősítése
-            </label>
-            <input
-              onChange={handleChange}
-              value={password.password_confdirmation}
-              className="shadow appearance-none border border-red-500 rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-              id="password_confirmation"
-              name="password_confirmation"
-              type="password"
-              placeholder="******************"
-            />
-          </div>
-          <div className="flex items-center">
-            <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-              type="submit"
-            >
-              Megerősítés
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+  </div>
   );
 }

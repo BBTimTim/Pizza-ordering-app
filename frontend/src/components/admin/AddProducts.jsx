@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import Loader from "../common/Loader";
-import { useNavigate } from "react-router-dom";
 import config from "../../../config";
 import Errors from "../common/Errors";
-import { useDispatch } from "react-redux";
 
 const { api_url } = config;
 
@@ -24,9 +22,7 @@ export default function AddProducts() {
   const handleChange = (e) => {
     setAdd({ ...add, [e.target.name]: e.target.value });
   };
-
-  const dispatch = useDispatch();
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors(null);
@@ -34,14 +30,21 @@ export default function AddProducts() {
     setSuccess(null);
 
     try {
+
+      const formData = new FormData();
+
+      formData.append("name", add.name);
+      formData.append("price", add.price);
+      formData.append("description", add.description);
+      formData.append("quantity", add.quantity);
+      formData.append("status", add.status);
+      formData.append("is_featured", add.is_featured);
+      if (add.image?.[0]) {
+          formData.append("image", add.image[0]);
+        }
       const res = await fetch(`${api_url}/products`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(add),
+        body: formData
       });
 
       const result = await res.json();
@@ -50,22 +53,6 @@ export default function AddProducts() {
         setErrors(result.errors);
         return;
       }
-
-       if (image) {
-        const formData = new FormData();
-        formData.append("image", image);
-        formData.append("wine_id", result.wine_id);
-        const imageRes = await fetch(`${api_url}/admin/images`, {
-          method: "POST",
-          body: formData,
-        });
-        const imageResult = await imageRes.json();
-        if (!imageRes.ok) {
-          setErrors(imageResult.errors);
-          return;
-        }
-    }
-
       setSuccess(result.success);
     } catch (error) {
       console.log(error);

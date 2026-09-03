@@ -14,4 +14,9 @@ public function index() {
         'data' => $sizes,
     ], 200);
 }
+   public function destroy($id) {
+        $size = Size::findOrFail($id);
+        $size->delete();
+          return response()->json(['success' => 'Sikeresen törölve!'], 200);
+    }
 }

@@ -108,18 +108,28 @@ A termékek megjelenítése `.map()` segítségével történik.
 
 A kosár állapotát Redux Toolkit kezeli.
 
-## Redux
+## Redux Toolkit
 
 A frontend állapotkezelésére Redux Toolkit használható.
 
 ### Redux struktúra
 
 ```text
-redux/
-├── store
-├── userSlice
-├── productSlice
-└── cartSlice
+src/
+│
+├── app/
+│   └── api/
+│       └── apiSlice.js
+│
+└── components/
+    └── redux/
+        ├── auth/
+        │   ├── authSlice.js
+        │   └── authApiSlice.js
+        │
+        ├── productSlice.jsx
+        ├── cartSlice.jsx
+        └── store.jsx
 ```
 
 ### User Slice
@@ -128,9 +138,8 @@ A bejelentkezett felhasználó állapotát kezeli.
 
 ```js
 {
-  email: "",
-  token: "",
-  isLoggedIn: false
+  user: null,
+  token: null
 }
 ```
 

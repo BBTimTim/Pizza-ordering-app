@@ -1,0 +1,70 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Order;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function store(Request $request) {
+        
+    $validated = $request->validate([
+        'user_id' => ['nullable', 'numeric'],   
+        'name' => ['required'],
+        'email' => ['required', 'email'],
+        'grand_total' => ['required', 'numeric', 'min:0'],
+        'sub_total' => ['required', 'numeric', 'min:0'],
+        'delivery_charges' => ['required', 'numeric', 'min:0'],
+        'status' => ['required'],
+        'payment_method' => ['required'],
+        'payment_status' => ['required'],
+        'county' => ['min:3', 'max:50'],
+        'city' => ['required', 'min:3', 'max:50'],
+        'zip' => ['required', 'min:4', 'max:6'],
+        'address' => ['required', 'min:3', 'max:50'],
+        'phone' => ['required'],
+    ]);
+
+    $order = Order::create($validated);
+
+ return response()->json([
+            'success' => 'Sikeres feltöltés!',
+            'order_id' => $order->id
+        ], 200);
+    }
+
+    public function update(Request $request, $id) {
+
+    $validated = $request->validate([
+        'user_id' => ['nullable', 'numeric'],   
+        'name' => ['required'],
+        'email' => ['required', 'email'],
+        'grand_total' => ['required', 'numeric', 'min:0'],
+        'sub_total' => ['required', 'numeric', 'min:0'],
+        'delivery_charges' => ['required', 'numeric', 'min:0'],
+        'status' => ['required'],
+        'payment_method' => ['required'],
+        'payment_status' => ['required'],
+        'county' => ['min:3', 'max:50'],
+        'city' => ['required', 'min:3', 'max:50'],
+        'zip' => ['required', 'min:4', 'max:6'],
+        'address' => ['required', 'min:3', 'max:50'],
+        'phone' => ['required'],
+    ]);
+
+   $order = Order::findOrFail($id);
+   $order->update($validated);
+
+ return response()->json([
+            'success' => 'Sikeres feltöltés!',
+            'order_id' => $order->id
+        ], 200);
+    }
+public function destroy($id)
+    {
+        $order = Order::findOrFail($id);
+        $order->delete();
+        return response()->json(['success' => 'Sikeresen törölve!'], 200);
+    }
+}

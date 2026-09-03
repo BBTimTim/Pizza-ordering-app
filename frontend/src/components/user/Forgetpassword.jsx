@@ -2,7 +2,6 @@ import React from "react";
 import { useState } from "react";
 import config from "../../../config";
 import Loader from "../common/Loader";
-import Errors from "../common/Errors";
 
 const { api_url } = config;
 
@@ -37,10 +36,11 @@ const Forgetpassword = () => {
       const result = await res.json();
 
       if (!res.ok) {
-        setErrors(result.errors);
+        setErrors(result.message);
         return;
       } 
-      setSuccess(result.success);
+      setSuccess(result.message);
+      setEmail('')
       
     } catch (error) {
       console.log(error)
@@ -60,7 +60,12 @@ const Forgetpassword = () => {
             </div>
         </div>
           )}
-        {errors && <Errors errors={errors} />}
+        {errors &&  <div className="flex justify-center m-5">
+               <div className="text-red-900 font-medium bg-red-200 rounded-full px-5 py-2" role="alert">
+              <p className="text-red-900 font-bold ">{errors}</p>
+            </div>
+          </div>
+        }
         <div>
           <form  className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto" onSubmit={handleSubmit}>
                 <div className="mb-4">

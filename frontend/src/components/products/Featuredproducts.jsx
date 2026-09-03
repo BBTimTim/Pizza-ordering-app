@@ -9,7 +9,8 @@ import { addToCart } from "../redux/cartSlice";
 
 const { api_url } = config;
 
-export default function Products() {
+export default function Featuredproducts() {
+
   const [errors, setErrors] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,7 @@ export default function Products() {
     setSuccess(null);
 
     try {
-      const res = await fetch(`${api_url}/products`);
+      const res = await fetch(`${api_url}/featured-products`);
       const result = await res.json();
 
       if (!res.ok) {
@@ -44,11 +45,11 @@ export default function Products() {
   }, []);
 
   const handleAddToCart = (e, product) => {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(addToCart(product));
-    alert("Sikeresen kosárhoz adva");
-  };
+     e.stopPropagation()
+     e.preventDefault()
+     dispatch(addToCart(product))
+     alert("Sikeresen kosárhoz adva")
+  }
 
   return (
     <>
@@ -66,38 +67,27 @@ export default function Products() {
         )}
         {errors && <Errors errors={errors} />}
 
-        {product.map((item) => (
-          <div
-            key={item.id}
-            class="grid gap-4 rounded-lg w-screen h-[60vh] flex-col items-center text-center justify-around p-4 hover:bg-fuchsia-50 p-4"
-          >
-            <div class="rounded bg-red-200 p-4">
-              <div className="relative flex-1 w-full">
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-contain"
-                  />
-                )}
+        <div className="w-screen" overflow-x-scroll text-red-500>
+          <div className="w-max flex">
+
+            {product.map((item) => (
+            <div key={item.id} className="w-screen h-[60vh] flex-col items-center text-center justify-around p-4 hover:bg-fuchsia-50 transision-all duration-300 md:w-[50vw] xl:w-[33vw] xl:h-[90vh]">
+              <div className="relative flex-1 w-full hover:rotate-[60deg] transition-all duration-500">
+               {item.image && <img src={item.image} alt={item.name} fill className="object-contain" />}
               </div>
               <div className="flex-1 flex-col gap-4 items-center justify-center">
-                <h1 className="text-xl font-vold uppercase xl:text-2xl 2xl:text-3xl">
-                  {item.name}
-                </h1>
+                <h1 className="text-xl font-vold uppercase xl:text-2xl 2xl:text-3xl">{item.name}</h1>
                 <p className="p-4 2xl:p-8">{item.description}</p>
                 <span className="text-xl font-bold">{item.price} Ft</span>
-                <button
-                  onClick={(e) => handleAddToCart(e, product)}
-                  className="bg-red-500 text-white p-2 rounded-full"
-                >
+                <button onClick={(e) => handleAddToCart(e, product)} className="bg-red-500 text-white p-2 rounded-full">
                   Kosárba
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+           ))}
+
+        </div>
+        </div>
       </div>
     </>
   );

@@ -3,13 +3,13 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 class ResetPasswordNotification extends Notification
 {
     use Queueable;
-
     public $token;
     /**
      * Create a new notification instance.
@@ -32,14 +32,17 @@ class ResetPasswordNotification extends Notification
     /**
      * Get the mail representation of the notification.
      */
-public function toMail(object $notifiable): MailMessage
-{
-    return (new MailMessage)
-        ->subject('Kedves felhasználó!')
-        ->line('Megkaptuk a kérésedet az elfelejtett jelszó visszaállítására.')
-        ->action('Kérlek, kattints az alábbi linkre a jelszó megváltoztatásához:', 'http://localhost:5173/resetpassword?token=' . $this->token . '&email=' . $notifiable->email)
-        ->line('Ha nem Te kértél jelszó visszaállító emailt, nyugodtan hagyd figyelmen kívül ezt az üzenetet.');
-}
+    public function toMail(object $notifiable): MailMessage
+    {
+        return (new MailMessage)
+            ->subject('Jelszó visszaállítása')
+            ->line('Megkaptuk a kérésedet az elfelejtett jelszó visszaállítására.')
+            ->action(
+                'Jelszó visszaállítása',
+                'http://localhost:5173/resetpassword?token=' . $this->token . '&email=' . urlencode($notifiable->email)
+            )
+            ->line('Ha nem Te kértél jelszó-visszaállító emailt, nyugodtan hagyd figyelmen kívül ezt az üzenetet.');
+    }
 
     /**
      * Get the array representation of the notification.

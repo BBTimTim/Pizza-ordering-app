@@ -1,7 +1,7 @@
 import { Outlet, Navigate } from "react-router-dom";
 import React from "react";
 import { useSelector } from "react-redux";
-import { selectCurrentToken, selectCurrentUser } from "../components/redux/auth/authSlice";
+import { selectCurrentToken, selectCurrentUser } from "../redux/auth/authSlice";
 
 export default function AdminRoutes() {
   const  token = useSelector(selectCurrentToken);

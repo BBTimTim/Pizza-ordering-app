@@ -14,4 +14,10 @@ public function index() {
         'data' => $toppings,
     ], 200);
 }
+
+   public function destroy($id) {
+        $topping = Topping::findOrFail($id);
+        $topping->delete();
+          return response()->json(['success' => 'Sikeresen törölve!'], 200);
+    }
 }
