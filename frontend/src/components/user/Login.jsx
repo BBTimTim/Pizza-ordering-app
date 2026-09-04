@@ -3,8 +3,8 @@ import Loader from "../common/Loader";
 import { useNavigate } from "react-router-dom";
 import Errors from "../common/Errors";
 
-import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentUser, setCredentials } from "../redux/auth/authSlice";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../redux/auth/authSlice";
 import { useLoginMutation } from "../redux/auth/authApiSlice";
 
 export default function Login() {
@@ -17,7 +17,6 @@ export default function Login() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const user = useSelector(selectCurrentUser);
   const [errors, setErrors] = useState(null);
 
   const dispatch = useDispatch();
@@ -37,14 +36,15 @@ export default function Login() {
           accessToken: result.token,
         }),
       );
-      if (user.role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
+
+      if (result.user?.status === "admin") {
+        navigate("/admin", { replace: true });
       } else {
         navigate("/user/profile", { replace: true });
       }
     } catch (error) {
       console.log(error);
-      setErrors(errors?.data);
+      setErrors(error.data?.errors);
     }
   };
   return (

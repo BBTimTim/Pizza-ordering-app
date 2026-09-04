@@ -14,7 +14,6 @@ class Product extends Model
         'image',
         'description',
         'price',
-        'quantity',
         'status',
         'is_featured',
         'size_id',

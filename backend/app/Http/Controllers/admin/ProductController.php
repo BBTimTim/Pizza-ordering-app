@@ -13,7 +13,7 @@ class ProductController extends Controller
 
         $user = $request->user();
 
-        if ($user->role === 'admin') {
+        if ($user->status === 'admin') {
             $products = Product::latest()->get();
         } else {
             $products = Product::where(['status' => 'active'])
@@ -35,7 +35,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => ['required'],
             'price' => ['required', 'numeric', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
             'description' => ['required', 'max:255'],
             'status' => ['required', 'in:active,block'],
             'is_featured' => ['required', 'in:yes,no'],
@@ -73,7 +73,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => ['required'],
             'price' => ['required', 'numeric', 'min:0'],
-            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
             'description' => ['required', 'max:255'],
             'status' => ['required', 'in:active,block'],
             'is_featured' => ['required', 'in:yes,no'],   

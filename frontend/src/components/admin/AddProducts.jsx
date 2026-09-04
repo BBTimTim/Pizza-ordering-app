@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import Loader from "../common/Loader";
 import config from "../../../config";
 import Errors from "../common/Errors";
+import { useSelector } from "react-redux";
+import { selectCurrentToken } from "../redux/auth/authSlice";
 
 const { api_url } = config;
 
@@ -9,20 +11,28 @@ export default function AddProducts() {
   const [add, setAdd] = useState({
     name: "",
     description: "",
-    status: "active",
+    status: "",
     is_featured: "no",
     price: 0,
     image: null,
   });
 
+  const token = useSelector(selectCurrentToken);
   const [errors, setErrors] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+  const [imagePreview, setImagePreview] = useState(null);
+
   const handleChange = (e) => {
     setAdd({ ...add, [e.target.name]: e.target.value });
   };
- 
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+
+    setAdd({ ...add, image: file });
+    setImagePreview(URL.createObjectURL(file));
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors(null);
@@ -30,21 +40,23 @@ export default function AddProducts() {
     setSuccess(null);
 
     try {
-
       const formData = new FormData();
 
       formData.append("name", add.name);
       formData.append("price", add.price);
       formData.append("description", add.description);
-      formData.append("quantity", add.quantity);
       formData.append("status", add.status);
       formData.append("is_featured", add.is_featured);
-      if (add.image?.[0]) {
-          formData.append("image", add.image[0]);
-        }
-      const res = await fetch(`${api_url}/products`, {
+      if (add.image) {
+        formData.append("image", add.image);
+      }
+      const res = await fetch(`${api_url}/addproducts`, {
         method: "POST",
-        body: formData
+         headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+        body: formData,
       });
 
       const result = await res.json();
@@ -61,8 +73,8 @@ export default function AddProducts() {
     }
   };
   return (
-    <div>
-      <h2 className="text-center font-bold md:text-xl">Belépés</h2>
+    <div className="py-5">
+      <h2 className="text-center font-bold md:text-xl">Új termék hozzáadása</h2>
       {loading && <Loader />}
       {success && (
         <div className="flex justify-center m-5">
@@ -94,7 +106,7 @@ export default function AddProducts() {
               id="name"
               type="text"
               name="name"
-              value={add.mame}
+              value={add.name}
               placeholder="Termék neve"
             />
           </div>
@@ -114,64 +126,91 @@ export default function AddProducts() {
               placeholder="Leírás"
             />
           </div>
-          <div className="mb-4">
+             <div className="mb-6">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="name"
+              htmlFor="price"
             >
-              Status
+              Ár Ft-ban
             </label>
+            <input
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="price"
+              type="text"    
+              name="price"
+              value={add.price}
+            />
+          </div>
+          <div className="mb-4 flex items-center gap-4">
+            <label className="text-gray-700 text-sm font-bold" htmlFor="status">
+              Status:
+            </label>
+
             <select
               name="status"
               id="status"
               value={add.status}
+              className="select"
               onChange={handleChange}
             >
+              <option value="" disabled>
+                Válassz
+              </option>
               <option value="active">Aktív</option>
               <option value="block">Inaktív</option>
             </select>
           </div>
+
           <div className="mb-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="label flex items-center gap-2"
               htmlFor="is_featured"
             >
-              Kiemelt
+              <input
+                type="checkbox"
+                className="checkbox"
+                id="is_featured"
+                name="is_featured"
+                checked={add.is_featured === "yes"}
+                onChange={(e) =>
+                  setAdd({
+                    ...add,
+                    is_featured: e.target.checked ? "yes" : "no",
+                  })
+                }
+              />
+              Kiemelt termék
             </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="is_featured"
-              type="checkbox"
-              name="is_featured"
-              placeholder="Kiemelt"
-              checked={add.is_featured === "yes"}
-              onChange={(e) =>
-                setAdd({
-                  ...add,
-                  is_featured: e.target.checked ? "yes" : "no",
-                })
-              }
-            />
           </div>
-          <div className="mb-4">
+          <div className="mb-4 flex items-center gap-4">
             <label
-              className="block text-gray-700 text-sm font-bold mb-2"
+              className="block mb-2 text-sm font-semibold text-heading"
               htmlFor="image"
             >
               Kép
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="text-sm text-stone-500
+              file:mr-5 file:py-1 file:px-3 file:border-[1px]
+              file:text-xs file:font-medium
+              file:bg-stone-50 file:text-stone-700
+              hover:file:cursor-pointer hover:file:bg-blue-50
+              hover:file:text-blue-700"
               id="image"
               type="file"
               name="image"
-              onChange={(e) =>
-                setAdd({
-                  ...add,
-                  image: e.target.files[0],
-                })
-              }
+              onChange={handleImageChange}
             />
+            {imagePreview && (
+              <div className="mt-3">
+                <img
+                  src={imagePreview}
+                  alt="Előnézet"
+                  className="w-[200px] h-[200px] object-cover rounded-lg"
+                />
+              </div>
+            )}
           </div>
           <div className="flex justify-center">
             <button

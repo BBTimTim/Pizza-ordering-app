@@ -28,24 +28,24 @@ Route::post('login', [GuestController::class, 'login']);
 Route::post('resetpassword', [GuestController::class, 'resetpassword']);
 Route::post('forgetpassword', [GuestController::class, 'forgetpassword']);
 
-Route::controller(ProductController::class)->middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::post('admin/products', 'store');
-        Route::get('/admin/products', 'index');
-        Route::get('admin/products/{id}', 'show');
-        Route::patch('admin/products/{id}', 'update');
-        Route::delete('admin/products/{id}', 'destroy');
+Route::controller(ProductController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
+        Route::post('addproducts', 'store');
+        Route::get('products', 'index');
+        Route::get('products/{id}', 'show');
+        Route::patch('products/{id}', 'update');
+        Route::delete('products/{id}', 'destroy');
     });
 
-Route::controller(SizeController::class)->middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::post('admin/sizes', 'store');
-        Route::get('/admin/sizes', 'index');
-        Route::delete('admin/sizes/{id}', 'destroy');
+Route::controller(SizeController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
+        Route::post('sizes', 'store');
+        Route::get('sizes', 'index');
+        Route::delete('sizes/{id}', 'destroy');
     });
 
-Route::controller(ToppingController::class)->middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::post('admin/toppings', 'store');
-        Route::get('/admin/toppings', 'index');
-        Route::delete('admin/toppings/{id}', 'destroy');
+Route::controller(ToppingController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
+        Route::post('toppings', 'store');
+        Route::get('toppings', 'index');
+        Route::delete('toppings/{id}', 'destroy');
     });
 
 Route::get('products', [ProductController::class, 'index']);

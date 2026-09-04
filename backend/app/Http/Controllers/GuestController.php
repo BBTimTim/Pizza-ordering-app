@@ -41,7 +41,8 @@ class GuestController extends Controller
     if ($user && Hash::check($request->password, $user->password)) {
       $token = $user->createToken('mytoken')->plainTextToken;
       return response()->json([
-        'token' => $token
+        'token' => $token,
+        'user' => $user
       ], 200);
     } 
 

@@ -1,14 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { IoMdSearch } from "react-icons/io";
 import { FaShoppingCart } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import SettingsButton from "../admin/SettingsButton";
 import { selectCurrentUser } from "../redux/auth/authSlice";
+import { CgProfile } from "react-icons/cg";
+import { RiLogoutCircleRFill } from "react-icons/ri";
+import { ModalContext } from "../context/ModalContext";
 
 export default function Header() {
   const user = useSelector(selectCurrentUser);
-
+  const {handleOpen} = useContext(ModalContext);
   // const product = useSelector((state) => state.cart.cart.products);
 
   return (
@@ -67,7 +70,7 @@ export default function Header() {
                 </li>
 
                 <li className="flex items-center space-x-4">
-                  <Link className="relative">
+                  <Link className="relative transition hover:text-red-700/75 text-lg">
                     <FaShoppingCart className="text-lg" />
                     {/* {product.length > 0 ? (
                       product.length
@@ -82,23 +85,25 @@ export default function Header() {
                   <>
                     <li>
                       <Link
-                        className="transition hover:text-red-700/75"
-                        to="/profile"
+                        className="transition hover:text-red-700/75 text-xl"
+                        to="/user/profile"
                       >
-                        Profilom
+                        <CgProfile />
                       </Link>
                     </li>
-
-                    {user.role === "admin" && (
-                      <li>
-                        <SettingsButton />
-                      </li>
-                    )}
-
                     <li>
-                      <Link className="transition hover:text-red-700/75" to="/">
-                        Kilépés
-                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleOpen("logOut")}
+                        className="group flex items-center h-8 w-8 hover:w-26 overflow-hidden rounded-full bg-red-600 text-white transition-all duration-300 ease-in-out"
+                      >
+                        <div className="flex min-w-8 items-center justify-center">
+                          <RiLogoutCircleRFill className="text-xl" />
+                        </div>
+                        <span className="whitespace-now rapopacity-0 group-hover:opacity-100 transition-opacity duration-200 pr-3 hover:text-red-100">
+                          Kilépés
+                        </span>
+                      </button>
                     </li>
                   </>
                 ) : (

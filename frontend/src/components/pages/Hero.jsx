@@ -24,7 +24,7 @@ export default function Hero() {
           <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-8">
               <div className="text-center sm:text-left px-8">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl text-white font-bold">
+                <h1 className="sm:text-4xl lg:text-5xl text-white font-bold">
                   Elérkezett e havi különleges ajánlatunk
                 </h1>
                 <p className="text-sm mt-4 text-white font-normal italic py-3 px-2">
