@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->decimal('grand_total', 10, 2);
-            $table->decimal('sub_total', 10, 2);
-            $table->decimal('delivery_charges', 10, 2);
+            $table->integer('grand_total');
+            $table->integer('sub_total');
+            $table->integer('delivery_charges');
             $table->string('county')->nullable();
             $table->string('city');
             $table->string('zip');

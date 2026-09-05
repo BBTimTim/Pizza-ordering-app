@@ -20,12 +20,13 @@ const Login = React.lazy(() => import("./components/user/Login"));
 const Forgetpassword = React.lazy(() => import("./components/user/Forgetpassword"),);
 const Resetpassword = React.lazy(() => import("./components/user/Resetpassword"),);
 const Profile = React.lazy(() => import("./components/user/Profile"),);
-//const UserProducts = React.lazy(() => import("./components/products/Products.jsx"),);
-//const Cart = React.lazy(() => import("./components/cart/Cart.jsx"),);
+const UserProducts = React.lazy(() => import("./components/products/Products.jsx"),);
+const Cart = React.lazy(() => import("./components/cart/Cart.jsx"),);
 const Contact = React.lazy(() => import("./components/pages/Contact"),);
 
 const AddProducts = React.lazy(() => import("./components/admin/AddProducts.jsx"),);
 const AdminProducts = React.lazy(() => import("./components/admin/Products.jsx"),);
+const Editproduct = React.lazy(() => import("./components/admin/Editproduct.jsx"),);
 const AminLayout = React.lazy(() => import("./components/admin/Layout.jsx"),);
 
 function App() {
@@ -51,8 +52,8 @@ function App() {
                     <Route path="register" element={user ? <Home /> : <Register />} />
                     <Route path="login" element={user ? <Home /> : <Login />} />
                     <Route path="resetpassword" element={<Resetpassword />}></Route>
-                    {/* <Route path="cart" element={<Cart />}></Route>
-                    <Route path="products" element={<Products />}></Route> */}
+                    <Route path="cart" element={<Cart />}></Route>
+                    <Route path="products" element={<UserProducts />}></Route>
                     <Route path="forgetpassword" element={<Forgetpassword />}></Route>
                     <Route element={<ProtectedRoutes />}>
                       <Route path="user/profile" element={<Profile />} />
@@ -63,8 +64,8 @@ function App() {
                       <Route path="admin" element={<AminLayout />}>
                         <Route path="addproducts" element={<AddProducts />} />
                          <Route path="products" element={<AdminProducts />} />
-                   
-                       </Route>
+                          <Route path="editproduct/:id" element={<Editproduct />} />
+                       </Route> 
                   </Route>
               </Routes>
               {open && <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}

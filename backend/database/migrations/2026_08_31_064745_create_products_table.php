@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name'); 
             $table->string('image')->nullable(); 
             $table->text('description');
-            $table->decimal('price', 10, 2);
+            $table->integer('price');
             $table->enum('status', ['active', 'block'])->default('active');
             $table->enum('is_featured', ['yes', 'no'])->default('no');
             $table->timestamps();

@@ -3,6 +3,7 @@
 use App\Http\Controllers\admin\ProductController;
 use App\Http\Controllers\admin\SizeController;
 use App\Http\Controllers\admin\ToppingController;
+use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -32,7 +33,7 @@ Route::controller(ProductController::class)->middleware(['auth:sanctum', 'status
         Route::post('addproducts', 'store');
         Route::get('products', 'index');
         Route::get('products/{id}', 'show');
-        Route::patch('products/{id}', 'update');
+        Route::patch('editproduct/{id}', 'update');
         Route::delete('products/{id}', 'destroy');
     });
 
@@ -52,3 +53,4 @@ Route::get('products', [ProductController::class, 'index']);
 Route::get('featured-products', [ProductController::class, 'featured']);
 Route::get('sizes', [SizeController::class, 'index']);
 Route::get('toppings', [ToppingController::class, 'index']);
+Route::get('cart', [CartItemController::class, 'index']);

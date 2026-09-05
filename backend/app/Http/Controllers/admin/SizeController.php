@@ -14,6 +14,15 @@ public function index() {
         'data' => $sizes,
     ], 200);
 }
+
+   public function store(Request $request){
+         $validated = $request->validate([
+             'size' => ['required'],
+             'product_id' => ['exists:products,id'],
+         ]);
+          Size::create($validated);
+          return response()->json(['success' => 'Sikeres mentés!'], 200);
+    }
    public function destroy($id) {
         $size = Size::findOrFail($id);
         $size->delete();

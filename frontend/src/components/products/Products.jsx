@@ -1,96 +1,59 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setProducts } from "../redux/productSlice";
 import config from "../../../config";
-import Errors from "../common/Errors";
-import Loader from "../common/Loader";
-import { addToCart } from "../redux/cartSlice";
+import { addItemToCart } from "../redux/cartSlice";
+import { selectCurrentToken } from "../redux/auth/authSlice";
 
-const { api_url } = config;
+const { api_url, img_url  } = config;
 
 export default function Products() {
-  const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+
+  const token = useSelector(selectCurrentToken);
 
   const dispatch = useDispatch();
-  const product = useSelector((state) => state.products);
+  const products = useSelector((state) => state.products.products);
 
-  const fetchProducts = async () => {
-    setErrors(null);
-    setLoading(true);
-    setSuccess(null);
-
-    try {
-      const res = await fetch(`${api_url}/products`);
-      const result = await res.json();
-
-      if (!res.ok) {
-        setErrors(result.errors);
-        return;
-      }
-      dispatch(setProducts(result.data));
-      setSuccess(result.success);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+const handleAddToCart = (product) => {
+    dispatch(addItemToCart(product));
   };
+
+ const fetchProducts = async () => {
+    const res = await fetch(`${api_url}/products`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json",
+      },
+    });
+    const result = await res.json();
+    dispatch(setProducts(result.data));
+};
 
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  const handleAddToCart = (e, product) => {
-    e.stopPropagation();
-    e.preventDefault();
-    dispatch(addToCart(product));
-    alert("Sikeresen kosárhoz adva");
-  };
-
   return (
     <>
-      <div>
-        {loading && <Loader />}
-        {success && (
-          <div className="flex justify-center m-5">
-            <div
-              className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
-              role="alert"
-            >
-              <p className="text-green-900 font-bold ">{success}</p>
-            </div>
-          </div>
-        )}
-        {errors && <Errors errors={errors} />}
-
-        {product.map((item) => (
-          <div
-            key={item.id}
-            class="grid gap-4 rounded-lg w-screen h-[60vh] flex-col items-center text-center justify-around p-4 hover:bg-fuchsia-50 p-4"
-          >
-            <div class="rounded bg-red-200 p-4">
-              <div className="relative flex-1 w-full">
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-contain"
-                  />
-                )}
-              </div>
-              <div className="flex-1 flex-col gap-4 items-center justify-center">
-                <h1 className="text-xl font-vold uppercase xl:text-2xl 2xl:text-3xl">
-                  {item.name}
-                </h1>
-                <p className="p-4 2xl:p-8">{item.description}</p>
-                <span className="text-xl font-bold">{item.price} Ft</span>
+   <div className="gap-5 grid sm:grid-cols-4 grid-col-2 sm:p-3">
+        {products.map((item) => (
+          <div key={item.id} className="bg-white shadow-md py-5">
+            <img
+              className="w-70 sm:w-75 object-cover mx-auto"
+              src={`${img_url}/products/${item?.image}`}
+              alt={item.name}
+            />
+            <div className="p-4 text-sm">
+              <p className="text-slate-800 text-base font-bold my-1.5">
+                {item.name}
+              </p>
+              <p className="text-slate-500">{item.description}</p>
+               <p className="text-slate-600 mt-5">{item.price} Ft</p>
+              <div className="mt-3 text-center sm:mt-10">
                 <button
-                  onClick={(e) => handleAddToCart(e, product)}
-                  className="bg-red-500 text-white p-2 rounded-full"
+                  onClick={() => handleAddToCart(item.id)}
+                  className="bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600"
                 >
                   Kosárba
                 </button>
@@ -102,3 +65,4 @@ export default function Products() {
     </>
   );
 }
+

@@ -56,7 +56,7 @@ export default function Hero() {
           <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-8">
               <div className="text-center sm:text-left px-8">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl text-white font-bold">
+                <h1 className="sm:text-4xl lg:text-5xl text-white font-bold">
                   Desszert rajongók figyelem
                 </h1>
                 <p className="text-sm mt-4 text-white font-normal italic py-3 px-2">
@@ -85,11 +85,11 @@ export default function Hero() {
           className="relative overflow-hidden min-h-[550px] flex items-center bg-no-repeat bg-center bg-cover"
           style={{ backgroundImage: `url(${Piknic})` }}
         >
-          <div className="absolute h-[200px] w-[550px] bg-red-700 rounded-full z-0 -left-25 inset-x-0"></div>
+          <div className="absolute h-[120px] w-[450px] sm:w-[550px] sm:h-[200px] bg-red-700 rounded-full z-0 -left-22 sm:-left-25 inset-x-0"></div>
           <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-8">
               <div className="text-center sm:text-left px-8">
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl text-white font-bold">
+                <h1 className="sm:text-4xl lg:text-5xl text-white font-bold">
                   Pizza - Piknic
                 </h1>
                 <p className="text-sm mt-4 text-white font-normal italic py-3 px-2">

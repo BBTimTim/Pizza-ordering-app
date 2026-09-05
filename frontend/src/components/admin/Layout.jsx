@@ -8,8 +8,8 @@ export default function Layout() {
     <div className="w-full">
       <Header />
       <div className="relative md:flex-row w-full">
-        <section className="flex- flex items-center justify-center">
-          <main className="w-full py-2 max-w-[1350px] min-h-[calc(100vh-550px)] md:shadow-md md:rounded-xl bg-white">
+        <section className="flex items-center justify-center">
+          <main className="w-full py-2 max-w-[1350px] min-h-[calc(100vh-150px)] md:shadow-md md:rounded-xl bg-white">
             <Outlet />
           </main>
         </section>

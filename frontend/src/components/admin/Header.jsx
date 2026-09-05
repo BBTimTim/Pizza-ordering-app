@@ -35,7 +35,7 @@ export default function Header() {
                   <IoMdSearch className="text-gray-500 absolute top-1 translate-y-1/3 right-4" />
                 </li>
                 <li>
-                  <SettingsButton className="transition hover:text-red-700/75" />
+                  <SettingsButton/>
                 </li>
                 <li>
                   <button

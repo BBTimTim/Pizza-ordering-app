@@ -15,6 +15,15 @@ public function index() {
     ], 200);
 }
 
+   public function store(Request $request){
+         $validated = $request->validate([
+             'name' => ['required'],
+             'price' => ['required', 'numeric'],
+             'product_id' => ['exists:products,id'],
+         ]);
+          Topping::create($validated);
+          return response()->json(['success' => 'Sikeres mentés!'], 200);
+    }
    public function destroy($id) {
         $topping = Topping::findOrFail($id);
         $topping->delete();

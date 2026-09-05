@@ -8,22 +8,20 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 class ProductController extends Controller
 {
-    public function index(Request $request)
-    {
-
-        $user = $request->user();
-
-        if ($user->status === 'admin') {
-            $products = Product::latest()->get();
-        } else {
-            $products = Product::where(['status' => 'active'])
-                ->latest()
-                ->get();
-        }
-        return response()->json([
-            'data' => $products
-        ], 200);
+  public function index(Request $request)
+{
+    $user = $request->user();
+    if ($user && $user->status === 'admin') {
+        $products = Product::latest()->get();
+    } else {
+        $products = Product::where('status', 'active')
+            ->latest()
+            ->get();
     }
+    return response()->json([
+        'data' => $products
+    ], 200);
+}
 
     public function show($id) {
         $product = Product::findOrFail($id);
@@ -60,8 +58,9 @@ class ProductController extends Controller
         ], 200);
     }
 
+
     public function featured() {
-        $featuredProducts = Product::where(['is_featured' => 'yes', 'status' => 'active'])->latest();
+        $featuredProducts = Product::where(['is_featured' => 'yes', 'status' => 'active'])->latest()->get();
 
      return response()->json([
             'data' =>  $featuredProducts
@@ -77,7 +76,6 @@ class ProductController extends Controller
             'description' => ['required', 'max:255'],
             'status' => ['required', 'in:active,block'],
             'is_featured' => ['required', 'in:yes,no'],   
-            'topping_id' => ['exists:toppings,id'],
         ]);
 
         $product = Product::findOrFail($id);

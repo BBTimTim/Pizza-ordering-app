@@ -52,10 +52,10 @@ export default function AddProducts() {
       }
       const res = await fetch(`${api_url}/addproducts`, {
         method: "POST",
-         headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
         body: formData,
       });
 
@@ -66,6 +66,14 @@ export default function AddProducts() {
         return;
       }
       setSuccess(result.success);
+      setAdd({
+        name: "",
+        description: "",
+        status: "",
+        is_featured: "no",
+        price: 0,
+        image: null,
+      });
     } catch (error) {
       console.log(error);
     } finally {
@@ -126,7 +134,7 @@ export default function AddProducts() {
               placeholder="Leírás"
             />
           </div>
-             <div className="mb-6">
+          <div className="mb-6">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="price"
@@ -137,7 +145,7 @@ export default function AddProducts() {
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="price"
-              type="text"    
+              type="text"
               name="price"
               value={add.price}
             />
@@ -191,12 +199,7 @@ export default function AddProducts() {
               Kép
             </label>
             <input
-              className="text-sm text-stone-500
-              file:mr-5 file:py-1 file:px-3 file:border-[1px]
-              file:text-xs file:font-medium
-              file:bg-stone-50 file:text-stone-700
-              hover:file:cursor-pointer hover:file:bg-blue-50
-              hover:file:text-blue-700"
+              className="file-input n"
               id="image"
               type="file"
               name="image"
