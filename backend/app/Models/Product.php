@@ -13,25 +13,36 @@ class Product extends Model
         'name',
         'image',
         'description',
-        'price',
         'status',
         'is_featured',
-        'size_id',
-        'topping_id',
     ];
 
 
- public function sizes()
-{
-    return $this->belongsToMany(Size::class);
-}
-public function toppings()
-{
-    return $this->belongsToMany(Topping::class);
-}
+    public function sizes()
+    {
+        return $this->belongsToMany(Size::class,
+            'pizza_sizes',
+            'product_id',
+            'size_id'
+        )->withPivot('price');
+    }
+
+    public function toppings()
+    {
+        return $this->belongsToMany(Topping::class,
+            'pizza_toppings',
+            'product_id',
+            'topping_id'
+        );
+    }
 public function cartItems()
 {
     return $this->hasMany(CartItem::class);
+}
+
+public function orderItem()
+{
+    return $this->hasMany(OrderItems::class);
 }
 }
 

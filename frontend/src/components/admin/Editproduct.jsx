@@ -1,13 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Loader from "../common/Loader";
-import config from "../../../config";
 import Errors from "../common/Errors";
-import { useDispatch, useSelector } from "react-redux";
-import { selectCurrentToken } from "../redux/auth/authSlice";
 import { useParams } from "react-router-dom";
-import { setProducts } from "../redux/productSlice";
+import {useGetProductQuery, useUpdateProductMutation} from "../redux/products/productApiSlice";
 
-const { api_url } = config;
 
 export default function Editproduct() {
   const [edit, setEdit] = useState({
@@ -19,12 +15,11 @@ export default function Editproduct() {
     image: null,
   });
 
-  const token = useSelector(selectCurrentToken);
-  const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+const {data: product, isLoading, error, isSuccess} = useGetProductQuery(id);
+
+const [updateProduct, { data} ] = useUpdateProductMutation();
+
   const [imagePreview, setImagePreview] = useState(null);
-  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setEdit({ ...edit, [e.target.name]: e.target.value });
@@ -38,92 +33,57 @@ export default function Editproduct() {
     setEdit({ ...edit, image: file });
     setImagePreview(URL.createObjectURL(file));
   };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors(null);
-    setLoading(true);
-    setSuccess(null);
+  e.preventDefault();
 
-    try {
-      const formData = new FormData();
+  const formData = new FormData();
 
-      formData.append("name", edit.name);
-      formData.append("price", edit.price);
-      formData.append("description", edit.description);
-      formData.append("status", edit.status);
-      formData.append("is_featured", edit.is_featured);
-      if (edit.image) {
-        formData.append("image", edit.image);
-      }
-      const res = await fetch(`${api_url}/editproduct/${id}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        body: formData,
-      });
+  formData.append("name", edit.name);
+  formData.append("description", edit.description);
+  formData.append("status", edit.status);
+  formData.append("is_featured", edit.is_featured);
 
-      const result = await res.json();
+  if (edit.image) {
+    formData.append("image", edit.image);
+  }
 
-      if (!res.ok) {
-        setErrors(result.errors);
-        return;
-      }
-      setSuccess(result.success);
-      setEdit({
-        name: "",
-        description: "",
-        status: "",
-        is_featured: "no",
-        price: 0,
-        image: null,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    await updateProduct({id, body: formData }).unwrap();
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-   useEffect(() => {
-    const fetchData = async () => {
-      const res = await fetch(`${api_url}/products/${id}`,{
-         headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-      const result = await res.json();
-      dispatch(setProducts(result.data));
-      setEdit({
-        name: result.name || "",
-        description: result.description || "",
-        status: result.status || "",
-        is_featured: result.is_featured || "no",
-        price: result.price || 0,
-        image: result.image || null
-      });
-    }
-      fetchData()
-    }, [id])
+  useEffect(() => {
+  if (product) {
+    setEdit({
+        name: product.name || "",
+        description: product.description || "",
+        status: product.status || "",
+        is_featured: product.is_featured || "no",
+        price: product.price || 0,
+        image: product.image || null
+    });
+  }
+}, [product]);
 
 
   return (
     <div className="py-5">
       <h2 className="text-center font-bold md:text-xl">Termék módosítása</h2>
-      {loading && <Loader />}
-      {success && (
+      {isLoading && <Loader />}
+      {isSuccess && (
         <div className="flex justify-center m-5">
           <div
             className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
             role="alert"
           >
-            <p className="text-green-900 font-bold ">{success}</p>
+            <p className="text-green-900 font-bold">{data?.success}</p>
           </div>
         </div>
       )}
-      {errors && <Errors errors={errors} />}
+      {error && <Errors errors={error?.data?.errors} />}
 
       <div>
         <form

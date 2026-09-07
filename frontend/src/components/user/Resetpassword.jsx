@@ -61,8 +61,8 @@ export default function Resetpassword() {
   };
 
   return (
-     <div classNameName="container">
-      <h1 classNameName="mt-5 text-center">Új jelszó beállítása</h1>
+     <div className="container">
+      <h1 className="mt-5 text-center">Új jelszó beállítása</h1>
       {loading && <Loader />}
       {success && (
         <div className="flex justify-center m-5">

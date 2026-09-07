@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import Loader from "../common/Loader";
-import config from "../../../config";
 import Errors from "../common/Errors";
-
-const { api_url } = config;
+import { useRegisterMutation } from "../redux/auth/authApiSlice";
 
 export default function Register() {
 
@@ -14,55 +12,34 @@ export default function Register() {
     password_confirmation: ""
   });
 
-  const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [registerUser, { isLoading, data, error, isSuccess }] = useRegisterMutation();
 
   const handleChange = (e) => {
     setRegister({ ...register, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors(null);
-    setLoading(true);
-    setSuccess(null);
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      const res = await fetch(`${api_url}/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(register),
-      });
+  try {
+    await registerUser(register).unwrap();
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-      const result = await res.json();
-
-      if (!res.ok) {
-        setErrors(result.errors);
-        return;
-      }
-      setSuccess(result.success)
-    } catch (error) {
-      console.log(error)
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <div>
         <h2 className="text-center font-bold md:text-xl">Regisztráció</h2>
-      {loading && <Loader />}
-      {success && (
+      {isLoading && <Loader />}
+      {isSuccess && (
         <div className="flex justify-center m-5">
             <div className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2" role="alert">
-              <p className="text-green-900 font-bold ">{success}</p>
+              <p className="text-green-900 font-bold ">{data?.success}</p>
             </div>
         </div>
       )}
-      {errors && <Errors errors={errors} />}
+      {error && <Errors errors={error?.data?.errors} />}
 
           <div>
               <form

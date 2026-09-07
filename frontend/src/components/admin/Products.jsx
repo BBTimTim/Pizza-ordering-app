@@ -1,89 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React  from "react";
 import { VscEditSparkle } from "react-icons/vsc";
 import { MdDeleteForever } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
-import { removeProduct, setProducts } from "../redux/productSlice";
-import { selectCurrentToken } from "../redux/auth/authSlice";
+import { useGetProductQuery, useRemoveProductMutation } from "../redux/products/productSlice";
 import { Link } from "react-router-dom";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 
-const { api_url, img_url } = config;
+const { img_url } = config;
 
 export default function Products() {
-  const products = useSelector((state) => state.products.products);
-  const token = useSelector(selectCurrentToken);
-
-  const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const dispatch = useDispatch();
-
-  const fetchProducts = async () => {
-    const res = await fetch(`${api_url}/products`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-      },
-    });
-    const result = await res.json();
-    dispatch(setProducts(result.data));
-  };
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  const { data: products } = useGetProductQuery();
 
   const handleDelete = async (id) => {
-    setErrors(null);
-    setSuccess(null);
-    setLoading(true);
-
     try {
-      const res = await fetch(`${api_url}/products/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        setErrors(result.errors);
-        return;
-      }
-      dispatch(removeProduct(id));
-      await fetchProducts();
-      setSuccess(result.success);
+      await removeProduct(id).unwrap();
     } catch (error) {
       console.log(error);
-    } finally {
-      setLoading(false);
     }
   };
+const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductMutation();
 
   return (
     <div>
       <h2 className="p-3 indent-4 bg-red-100 rounded-full text-lg font-bold text-red-700 tracking-wide">
         Pizzák:
       </h2>
-      {loading && <Loader />}
-      {success && (
-        <div className="flex justify-center m-5">
-          <div
-            className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
-            role="alert"
-          >
-            <p className="text-green-900 font-bold ">{success}</p>
-          </div>
-        </div>
-      )}
-      {errors && <Errors errors={errors} />}
+      {isLoading && <Loader />}
+      {error && <Errors errors={error?.data?.errors} />}
 
-      {products.map((pizza) => (
+    {isSuccess && (
+  <div className="flex justify-center m-5">
+    <div
+      className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
+      role="alert"
+    >
+      <p className="text-green-900 font-bold">
+        {data?.success}
+      </p>
+    </div>
+  </div>
+)}
+
+      {products?.map((pizza) => (
         <ul key={pizza.id} className="list">
           <li className="list-row">
             <div>

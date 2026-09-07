@@ -17,10 +17,8 @@ export default function Login() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  const [errors, setErrors] = useState(null);
-
   const dispatch = useDispatch();
-  const [login, { isLoading }] = useLoginMutation();
+  const [login, { isLoading, error }] = useLoginMutation();
 
   const navigate = useNavigate();
 
@@ -44,14 +42,13 @@ export default function Login() {
       }
     } catch (error) {
       console.log(error);
-      setErrors(error.data?.errors);
     }
   };
   return (
     <div>
       <h2 className="text-center font-bold md:text-xl">Belépés</h2>
       {isLoading && <Loader />}
-      {errors && <Errors errors={errors} />}
+      {error && <Errors errors={error?.data?.errors} />}
 
       <div>
         <form

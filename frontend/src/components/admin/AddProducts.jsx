@@ -4,6 +4,7 @@ import config from "../../../config";
 import Errors from "../common/Errors";
 import { useSelector } from "react-redux";
 import { selectCurrentToken } from "../redux/auth/authSlice";
+import { useAddProductMutation } from "../redux/products/productSlice";
 
 const { api_url } = config;
 
@@ -17,10 +18,8 @@ export default function AddProducts() {
     image: null,
   });
 
-  const token = useSelector(selectCurrentToken);
-  const [errors, setErrors] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [addProduct, { isLoading, isSuccess, error, data }] =
+    useAddProductMutation();
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
@@ -33,68 +32,53 @@ export default function AddProducts() {
     setAdd({ ...add, image: file });
     setImagePreview(URL.createObjectURL(file));
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors(null);
-    setLoading(true);
-    setSuccess(null);
 
-    try {
-      const formData = new FormData();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      formData.append("name", add.name);
-      formData.append("price", add.price);
-      formData.append("description", add.description);
-      formData.append("status", add.status);
-      formData.append("is_featured", add.is_featured);
-      if (add.image) {
-        formData.append("image", add.image);
-      }
-      const res = await fetch(`${api_url}/addproducts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-        body: formData,
-      });
+  const formData = new FormData();
+  formData.append("name", add.name);
+  formData.append("description", add.description);
+  formData.append("status", add.status);
+  formData.append("is_featured", add.is_featured);
 
-      const result = await res.json();
+  if (add.image) {
+    formData.append("image", add.image);
+  }
+  try {
+    await addProduct(formData).unwrap();
+    setAdd({
+      name: "",
+      description: "",
+      status: "",
+      price: 0,
+      is_featured: "no",
+      image: null,
+    });
 
-      if (!res.ok) {
-        setErrors(result.errors);
-        return;
-      }
-      setSuccess(result.success);
-      setAdd({
-        name: "",
-        description: "",
-        status: "",
-        is_featured: "no",
-        price: 0,
-        image: null,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setImagePreview(null);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
   return (
     <div className="py-5">
       <h2 className="text-center font-bold md:text-xl">Új termék hozzáadása</h2>
-      {loading && <Loader />}
-      {success && (
+      {isLoading && <Loader />}
+
+      {isSuccess && (
         <div className="flex justify-center m-5">
           <div
             className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
             role="alert"
           >
-            <p className="text-green-900 font-bold ">{success}</p>
+            <p className="text-green-900 font-bold">{data?.success}</p>
           </div>
         </div>
       )}
-      {errors && <Errors errors={errors} />}
+
+      {error && <Errors errors={error?.data?.errors} />}
 
       <div>
         <form
@@ -139,7 +123,7 @@ export default function AddProducts() {
               className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="price"
             >
-              Ár Ft-ban
+              32 cm-es (Ár Ft-ban)
             </label>
             <input
               onChange={handleChange}
@@ -150,6 +134,21 @@ export default function AddProducts() {
               value={add.price}
             />
           </div>
+          <label
+            className="block text-gray-700 text-sm font-bold mb-2"
+            htmlFor="price"
+          >
+            45 cm-es (Ár Ft-ban)
+          </label>
+          <input
+            onChange={handleChange}
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            id="price"
+            type="text"
+            name="price"
+            value={add.price}
+          />
+
           <div className="mb-4 flex items-center gap-4">
             <label className="text-gray-700 text-sm font-bold" htmlFor="status">
               Status:
