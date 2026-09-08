@@ -1,4 +1,4 @@
-import { apiSlice } from "../../app/api/apiSlice";
+import { apiSlice } from "../../../app/api/apiSlice";
 
 export const toppingSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,7 +8,7 @@ export const toppingSlice = apiSlice.injectEndpoints({
 
     addTopping: builder.mutation({
       query: (topping) => ({
-        url: "/toppings",
+        url: "/addtoppings",
         method: "POST",
         body: topping,
       }),

@@ -18,8 +18,7 @@ public function index() {
    public function store(Request $request){
          $validated = $request->validate([
              'name' => ['required'],
-             'price' => ['required', 'numeric'],
-             'product_id' => ['exists:products,id'],
+             'price' => ['required', 'numeric', 'min:0'],
          ]);
           Topping::create($validated);
           return response()->json(['success' => 'Sikeres mentés!'], 200);

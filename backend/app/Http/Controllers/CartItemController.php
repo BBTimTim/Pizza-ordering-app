@@ -17,7 +17,7 @@ class CartItemController extends Controller
     public function store(Request $request){
          $validated = $request->validate([
              'price' => ['required', 'numeric'],
-             'quantity' => ['required', 'numeric', 'min:1'],
+             'quantity' => ['required', 'integer', 'min:1'],
              'order_id' => ['exists:orders,id'],
              'product_id' => ['exists:products,id'],
          ]);
@@ -25,7 +25,7 @@ class CartItemController extends Controller
           return response()->json(['success' => 'Sikeres rendelés!'], 200);
     }
 
-       public function destroy($id) {
+    public function destroy($id) {
         $cart = CartItem::findOrFail($id);
         $cart->delete();
           return response()->json(['success' => 'Sikeresen törölve!'], 200);

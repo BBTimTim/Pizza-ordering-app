@@ -17,24 +17,26 @@ public function index() {
 
    public function store(Request $request){
          $validated = $request->validate([
-             'name' => ['required'],
-             'price' => ['required', 'numeric', 'min:0'],
-             'product_id' => ['exists:products,id'],
+             'name' => ['required', 'numeric'],
+             'price_multiplier' => ['required', 'numeric', 'min:0'],
          ]);
           Size::create($validated);
           return response()->json(['success' => 'Sikeres mentés!'], 200);
     }
 
-       public function update(Request $request, $id){
+    public function update(Request $request, $id){
         $validated = $request->validate([
-             'name' => ['required'],
-             'price' => ['required', 'numeric', 'min:0'],
-             'product_id' => ['exists:products,id'],
+             'name' => ['required', 'numeric'],
+             'price_multiplier' => ['required', 'numeric', 'min:0'],
          ]);
           $size = Size::findOrFail($id);
           $size->update($validated);
-          return response()->json(['success' => 'Sikeres módosítva!'], 200);
+          return response()->json([
+            'success' => 'Sikeres módosítva!',
+            'data' => $size,
+          ], 200);
     }
+
    public function destroy($id) {
         $size = Size::findOrFail($id);
         $size->delete();

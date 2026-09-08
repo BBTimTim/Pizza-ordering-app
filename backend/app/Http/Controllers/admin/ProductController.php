@@ -15,9 +15,9 @@ class ProductController extends Controller
     {
         $user = $request->user();
         if ($user && $user->status === 'admin') {
-            $products = Product::with(['sizes', 'toppings'])->latest()->get();
+            $products = Product::latest()->get();
         } else {
-            $products = Product::with(['sizes', 'toppings'])->where('status', 'active')
+            $products = Product::where('status', 'active')
                 ->latest()
                 ->get();
         }
@@ -28,7 +28,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = Product::with(['sizes', 'toppings'])->findOrFail($id);
+        $product = Product::findOrFail($id);
         return response($product);
     }
     public function store(Request $request)
@@ -37,31 +37,12 @@ class ProductController extends Controller
             'name' => ['required'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
             'description' => ['required', 'max:255'],
+            'price' => ['required', 'numeric', 'min:0'],
             'status' => ['required', 'in:active,block'],
             'is_featured' => ['required', 'in:yes,no'],
-
-            'size_ids' => ['required', 'array'],
-            'size_ids.*' => ['exists:sizes,id'],
-            'sizes.*.price' => ['required', 'integer', 'min:0'],
-
-            'topping_ids' => ['required', 'array'],
-            'topping_ids.*' => ['exists:toppings,id'],
         ]);
 
-        $product = Product::create([
-            'name' => $validated['name'],
-            'description' => $validated['description'],
-            'status' => $validated['status'],
-            'is_featured' => $validated['is_featured'],
-        ]);
-
-        foreach ($validated['sizes'] as $size) {
-            $product->sizes()->attach($size['id'], [
-                'price' => $size['price'],
-            ]);
-        }
-
-        $product->toppings()->attach($validated['topping_ids']);
+        $product = Product::create($validated);
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
@@ -74,9 +55,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 'Sikeres feltöltés!',
-            'data' => [
-                'product' => $product
-            ]
+            'data' => $product
         ], 200);
     }
 
@@ -98,33 +77,12 @@ class ProductController extends Controller
         'description' => ['required', 'max:255'],
         'status' => ['required', 'in:active,block'],
         'is_featured' => ['required', 'in:yes,no'],
-
-        'sizes' => ['required', 'array'],
-        'sizes.*.id' => ['required', 'exists:sizes,id'],
-        'sizes.*.price' => ['required', 'integer', 'min:0'],
-
-        'topping_ids' => ['required', 'array'],
-        'topping_ids.*' => ['exists:toppings,id'],
+        'price' => ['required', 'numeric', 'min:0'],
     ]);
 
     $product = Product::findOrFail($id);
 
-    $product->update([
-        'name' => $validated['name'],
-        'description' => $validated['description'],
-        'status' => $validated['status'],
-        'is_featured' => $validated['is_featured'],
-    ]);
-
-    $sizes = [];
-    foreach ($validated['sizes'] as $size) {
-        $sizes[$size['id']] = [
-            'price' => $size['price'],
-        ];
-    }
-
-    $product->sizes()->sync($sizes);
-    $product->toppings()->sync($validated['topping_ids']);
+    $product->update($validated);
 
         if ($request->hasFile('image')) {
             if ($product->image) {
@@ -142,9 +100,7 @@ class ProductController extends Controller
         }
         return response()->json([
             'success' => 'Sikeres módosítva!',
-            'data' => [
-                'product' => $product
-            ]
+            'data' => $product
         ], 200);
     }
 

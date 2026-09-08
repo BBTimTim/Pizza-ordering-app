@@ -1,12 +1,7 @@
 import React, { useState } from "react";
 import Loader from "../common/Loader";
-import config from "../../../config";
 import Errors from "../common/Errors";
-import { useSelector } from "react-redux";
-import { selectCurrentToken } from "../redux/auth/authSlice";
 import { useAddProductMutation } from "../redux/products/productSlice";
-
-const { api_url } = config;
 
 export default function AddProducts() {
   const [add, setAdd] = useState({
@@ -14,8 +9,8 @@ export default function AddProducts() {
     description: "",
     status: "",
     is_featured: "no",
-    price: 0,
     image: null,
+    price: 0
   });
 
   const [addProduct, { isLoading, isSuccess, error, data }] =
@@ -41,6 +36,7 @@ const handleSubmit = async (e) => {
   formData.append("description", add.description);
   formData.append("status", add.status);
   formData.append("is_featured", add.is_featured);
+  formData.append("price", add.price);
 
   if (add.image) {
     formData.append("image", add.image);
@@ -117,37 +113,25 @@ const handleSubmit = async (e) => {
               value={add.description}
               placeholder="Leírás"
             />
-          </div>
-          <div className="mb-6">
+           </div>
+
+           <div className="mb-6">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="price"
             >
-              32 cm-es (Ár Ft-ban)
+              Ár
             </label>
-            <input
+             <input
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="price"
-              type="text"
+              type="number"
               name="price"
               value={add.price}
+              placeholder="Ft"
             />
           </div>
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="price"
-          >
-            45 cm-es (Ár Ft-ban)
-          </label>
-          <input
-            onChange={handleChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            id="price"
-            type="text"
-            name="price"
-            value={add.price}
-          />
 
           <div className="mb-4 flex items-center gap-4">
             <label className="text-gray-700 text-sm font-bold" htmlFor="status">

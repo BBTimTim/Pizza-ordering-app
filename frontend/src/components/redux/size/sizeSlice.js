@@ -1,4 +1,4 @@
-import { apiSlice } from "../../app/api/apiSlice";
+import { apiSlice } from "../../../app/api/apiSlice";
 
 export const sizeSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -8,7 +8,7 @@ export const sizeSlice = apiSlice.injectEndpoints({
 
     addSize: builder.mutation({
       query: (size) => ({
-        url: "/sizes",
+        url: "/addsizes",
         method: "POST",
         body: size,
       }),

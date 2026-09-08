@@ -10,8 +10,8 @@ import { ModalContext } from "../context/ModalContext";
 
 export default function Header() {
   const user = useSelector(selectCurrentUser);
-  const {handleOpen} = useContext(ModalContext);
-    const cartItems = useSelector((state) => state.cart.items);
+  const { handleOpen } = useContext(ModalContext);
+  const cartItems = useSelector((state) => state.cart.items);
 
   return (
     <header className="bg-white md:m-2">
@@ -69,15 +69,15 @@ export default function Header() {
                 </li>
 
                 <li className="flex items-center space-x-4">
-                  <Link to="/cart" className="relative transition hover:text-red-700/75 text-lg select-none">
+                  <Link
+                    to="/cart"
+                    className="relative transition hover:text-red-700/75 text-lg select-none"
+                  >
                     <FaShoppingCart className="text-xl" />
-                     {cartItems.length > 0 ? (
-                      cartItems.length
-                    ) : (
-                      <span className="absolute bottom-3 text-xs w-3 h-4 left-3 p-2 bg-red-600 rounded-full flex justify-center items-center text-white">
-                        {cartItems.length}
-                      </span>
-                    )} 
+
+                    <span className="absolute -top-2 -right-2 min-w-5 h-5 px-1  bg-red-600 rounded-full flex justify-center items-center text-white text-xs ">
+                      {cartItems.length}
+                    </span>
                   </Link>
                 </li>
                 {user ? (

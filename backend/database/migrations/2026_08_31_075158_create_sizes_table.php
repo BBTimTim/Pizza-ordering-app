@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('sizes', function (Blueprint $table) {
             $table->id();
             $table->integer('name');
+            $table->decimal('price_multiplier', 3, 2)->default(1);
             $table->timestamps();
         });
     }

@@ -2,7 +2,7 @@ import React  from "react";
 import { VscEditSparkle } from "react-icons/vsc";
 import { MdDeleteForever } from "react-icons/md";
 import config from "../../../config";
-import { useGetProductQuery, useRemoveProductMutation } from "../redux/products/productSlice";
+import { useGetProductsQuery, useRemoveProductMutation } from "../redux/products/productSlice";
 import { Link } from "react-router-dom";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
@@ -10,7 +10,7 @@ import Errors from "../common/Errors";
 const { img_url } = config;
 
 export default function Products() {
-  const { data: products } = useGetProductQuery();
+  const { data: products } = useGetProductsQuery();
 
   const handleDelete = async (id) => {
     try {
@@ -19,6 +19,7 @@ export default function Products() {
       console.log(error);
     }
   };
+
 const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductMutation();
 
   return (
@@ -42,7 +43,7 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
   </div>
 )}
 
-      {products?.map((pizza) => (
+      {products?.data?.map((pizza) => (
         <ul key={pizza.id} className="list">
           <li className="list-row">
             <div>

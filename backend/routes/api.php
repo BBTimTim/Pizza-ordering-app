@@ -33,18 +33,18 @@ Route::controller(ProductController::class)->middleware(['auth:sanctum', 'status
         Route::post('addproducts', 'store');
         Route::get('products', 'index');
         Route::get('products/{id}', 'show');
-        Route::patch('editproduct/{id}', 'update');
+        Route::post('editproduct/{id}', 'update');
         Route::delete('products/{id}', 'destroy');
     });
 
 Route::controller(SizeController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::post('sizes', 'store');
+        Route::post('addsizes', 'store');
         Route::get('sizes', 'index');
         Route::delete('sizes/{id}', 'destroy');
     });
 
 Route::controller(ToppingController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::post('toppings', 'store');
+        Route::post('addtoppings', 'store');
         Route::get('toppings', 'index');
         Route::delete('toppings/{id}', 'destroy');
     });

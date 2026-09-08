@@ -9,16 +9,16 @@ class OrderItemsController extends Controller
 { 
     
 public function index() {
-    $sizes = OrderItems::orderBy('size', 'ASC')->get();
+    $orderItems = OrderItems::orderBy('size', 'ASC')->get();
     return response()->json([
-        'data' => $sizes,
+        'data' => $orderItems,
     ], 200);
 }
 
    public function store(Request $request){
          $validated = $request->validate([
              'name' => ['required'],
-             'quantity' => ['required', 'numeric', 'min:1'],
+             'quantity' => ['required', 'integer', 'min:1'],
              'order_id' => ['exists:orders,id'],
              'total' => [ 'required','numeric'],
          ]);
@@ -27,8 +27,8 @@ public function index() {
     }
     
    public function destroy($id) {
-        $size = OrderItems::findOrFail($id);
-        $size->delete();
+        $orderItems = OrderItems::findOrFail($id);
+        $orderItems->delete();
           return response()->json(['success' => 'Sikeresen törölve!'], 200);
     }
 }

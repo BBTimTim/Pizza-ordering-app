@@ -25,6 +25,9 @@ const Cart = React.lazy(() => import("./components/cart/Cart.jsx"),);
 const Contact = React.lazy(() => import("./components/pages/Contact"),);
 
 const AddProducts = React.lazy(() => import("./components/admin/AddProducts.jsx"),);
+const AddSizes = React.lazy(() => import("./components/admin/AddSizes.jsx"),);
+const AddToppings = React.lazy(() => import("./components/admin/AddToppings.jsx"),);
+
 const AdminProducts = React.lazy(() => import("./components/admin/Products.jsx"),);
 const Editproduct = React.lazy(() => import("./components/admin/Editproduct.jsx"),);
 const AminLayout = React.lazy(() => import("./components/admin/Layout.jsx"),);
@@ -63,6 +66,8 @@ function App() {
                    <Route element={<AdminRoutes />}>
                       <Route path="admin" element={<AminLayout />}>
                         <Route path="addproducts" element={<AddProducts />} />
+                        <Route path="addtoppings" element={<AddToppings />} />
+                        <Route path="addsizes" element={<AddSizes />} />
                          <Route path="products" element={<AdminProducts />} />
                           <Route path="editproduct/:id" element={<Editproduct />} />
                        </Route> 

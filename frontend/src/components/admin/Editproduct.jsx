@@ -2,10 +2,15 @@ import React, { useEffect, useState } from "react";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 import { useParams } from "react-router-dom";
-import {useGetProductQuery, useUpdateProductMutation} from "../redux/products/productApiSlice";
+import {useGetProductQuery, useUpdateProductMutation} from "../redux/products/productSlice";
 
+import config from "../../../config";
+const { img_url } = config;
 
 export default function Editproduct() {
+
+ const {id} = useParams();
+
   const [edit, setEdit] = useState({
     name: "",
     description: "",
@@ -17,15 +22,13 @@ export default function Editproduct() {
 
 const {data: product, isLoading, error, isSuccess} = useGetProductQuery(id);
 
-const [updateProduct, { data} ] = useUpdateProductMutation();
+const [updateProduct, { data } ] = useUpdateProductMutation();
 
   const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
     setEdit({ ...edit, [e.target.name]: e.target.value });
   };
-
-  const {id} = useParams();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -43,6 +46,7 @@ const [updateProduct, { data} ] = useUpdateProductMutation();
   formData.append("description", edit.description);
   formData.append("status", edit.status);
   formData.append("is_featured", edit.is_featured);
+  formData.append("price", edit.price);
 
   if (edit.image) {
     formData.append("image", edit.image);
@@ -63,8 +67,12 @@ const [updateProduct, { data} ] = useUpdateProductMutation();
         status: product.status || "",
         is_featured: product.is_featured || "no",
         price: product.price || 0,
-        image: product.image || null
     });
+     setImagePreview(
+      product.image
+        ? `${img_url}/products/${product.image}`
+        : null
+    );
   }
 }, [product]);
 
@@ -74,9 +82,9 @@ const [updateProduct, { data} ] = useUpdateProductMutation();
       <h2 className="text-center font-bold md:text-xl">Termék módosítása</h2>
       {isLoading && <Loader />}
       {isSuccess && (
-        <div className="flex justify-center m-5">
+        <div className="flex justify-center m-5  px-5 py-2">
           <div
-            className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
+            className="text-green-900 font-medium bg-green-200 rounded-full"
             role="alert"
           >
             <p className="text-green-900 font-bold">{data?.success}</p>

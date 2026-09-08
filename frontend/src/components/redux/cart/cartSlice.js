@@ -1,21 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const items = localStorage.getItem('items')
-? JSON.parse(localStorage.getItem('items'))
-: [];
-
-const totalAmount = localStorage.getItem('totalAmount')
-? JSON.parse(localStorage.getItem('totalAmount'))
-: 0;
-
-const totalQuantity = localStorage.getItem('totalQuantity')
-? JSON.parse(localStorage.getItem('totalQuantity'))
-: 0;
-
 const initialState = {
-  items,
-  totalQuantity,
-  totalAmount,
+  items: JSON.parse(localStorage.getItem("items") || "[]"),
+  totalQuantity: JSON.parse(localStorage.getItem("totalQuantity") || "0"),
+  totalAmount: JSON.parse(localStorage.getItem("totalAmount") || "0"),
 };
 
 const setItemsToLocalStorage = (state) => {
@@ -36,43 +24,76 @@ const cartSlice = createSlice({
       setItemsToLocalStorage(state);
     },
 
-     addItemToCart: (state, action) => {
-      const newItem = action.payload;
-      const existingItem = state.items.find(item => item.id === newItem.id);
-      state.totalQuantity++;
-      if (!existingItem) {
-        state.items.push({
-          id: newItem.id,
-          name: newItem.name,
-          price: newItem.price,
-          quantity: 1,
-          totalPrice: newItem.price,
+  addItemToCart: (state, action) => {
+        const newItem = action.payload;
+        const size = newItem.sizes.find((size) => size.id === Number(newItem.selectedSize));
+        const sizePrice = newItem.price * (size?.price_multiplier || 1);
+
+        const toppingsPrice = newItem.toppings.filter((topping) =>
+               newItem.selectedToppings.includes(String(topping.id))
+          ).reduce((sum, topping) => sum + topping.price, 0);
+
+        const totalPrice = sizePrice + toppingsPrice;
+
+        const existingItem = state.items.find((item) => {
+            const sameProduct = item.id === newItem.id;
+            const sameSize = item.selectedSize === newItem.selectedSize;
+            const sameToppings =
+              [...item.selectedToppings].sort().join(",") ===
+              [...newItem.selectedToppings].sort().join(",");
+
+            return sameProduct && sameSize && sameToppings;
         });
-      } else {
-        existingItem.quantity++;
-        existingItem.totalPrice = existingItem.totalPrice + newItem.price;
-      }
-      
-      state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice, 0);
-       setItemsToLocalStorage(state);
-    },
 
-      removeItemFromCart: (state, action) => {
-      const id = action.payload;
-      const existingItem = state.items.find(item => item.id === id);
+        if (!existingItem) {
+          state.items.push({
+            id: newItem.id,
+            name: newItem.name,
+            price: newItem.price,
+            image: newItem.image,
+            selectedSize: newItem.selectedSize,
+            selectedToppings: newItem.selectedToppings || [],
+            sizes: newItem.sizes,
+            toppings: newItem.toppings,
+            quantity: 1,
+            totalPrice,
 
-      if (existingItem) {
-        state.totalQuantity--;
-        if (existingItem.quantity === 1) {
-          state.items = state.items.filter(item => item.id !== id);
+          });
         } else {
-          existingItem.quantity--;
-          existingItem.totalPrice = existingItem.totalPrice - existingItem.price;
+          existingItem.quantity++;
         }
-        state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice, 0);
-      }
+
+      state.totalQuantity++;
+      state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0);
       setItemsToLocalStorage(state);
     },
+
+removeItemFromCart: (state, action) => {
+    const itemToRemove = action.payload;
+    
+    const existingItem = state.items.find((item) => {
+      const sameProduct = item.id === itemToRemove.id;
+      const sameSize = item.selectedSize === itemToRemove.selectedSize;
+
+      const sameToppings = 
+        [...item.selectedToppings].sort().join(",") ===
+        [...itemToRemove.selectedToppings].sort().join(",");
+
+      return sameProduct && sameSize && sameToppings;
+  });
+
+  if (existingItem) {
+    state.totalQuantity--;
+
+    if (existingItem.quantity === 1) {
+      state.items = state.items.filter((item) => item !== existingItem);
+    } else {
+      existingItem.quantity--;
+    }
+    state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0 );
+  }
+  setItemsToLocalStorage(state);
+},
 
      clearCart: (state) => {
       state.items = [];

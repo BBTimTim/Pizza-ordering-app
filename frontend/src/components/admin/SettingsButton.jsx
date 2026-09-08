@@ -54,21 +54,21 @@ export default function SettingsButton() {
 
     <li>
       <Link
-        to="/admin/toppings"
+        to="/admin/addtoppings"
         className="flex items-center gap-3 text-red-600 hover:bg-red-50"
       >
         <FaList />
-        Feltétek
+        Feltétek hozzáadása
       </Link>
     </li>
 
     <li>
       <Link
-        to="/admin/sizes"
+        to="/admin/addsizes"
         className="flex items-center gap-3 text-red-600 hover:bg-red-50"
       >
         <IoMdResize />
-        Méretek
+        Méretek hozzáadása
       </Link>
     </li>
 
