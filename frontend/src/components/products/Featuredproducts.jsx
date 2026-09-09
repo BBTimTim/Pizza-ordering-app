@@ -9,8 +9,8 @@ export default function Featuredproducts() {
   return (
     <>
       <div className="">
-        <h2 className="p-2 mt-5 indent-4 bg-red-100 w-40 sm:w-45 rounded-full text-l xl:text-lg font-bold text-red-700 tracking-wide">
-          Kedvenceitek
+        <h2 className="p-2 mt-5 indent-4 bg-red-100 w-40 sm:w-55 rounded-full text-l xl:text-lg font-bold text-red-700 tracking-wide">
+          Kiemelt ajánlataink
         </h2>
 
         <div className="flex mt-2 min-h-[150px]">

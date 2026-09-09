@@ -23,6 +23,7 @@ const Profile = React.lazy(() => import("./components/user/Profile"),);
 const UserProducts = React.lazy(() => import("./components/products/Products.jsx"),);
 const Cart = React.lazy(() => import("./components/cart/Cart.jsx"),);
 const Contact = React.lazy(() => import("./components/pages/Contact"),);
+const AddOrder = React.lazy(() => import("./components/order/AddOrder.jsx"),);
 
 const AddProducts = React.lazy(() => import("./components/admin/AddProducts.jsx"),);
 const AddSizes = React.lazy(() => import("./components/admin/AddSizes.jsx"),);
@@ -58,6 +59,7 @@ function App() {
                     <Route path="cart" element={<Cart />}></Route>
                     <Route path="products" element={<UserProducts />}></Route>
                     <Route path="forgetpassword" element={<Forgetpassword />}></Route>
+                    <Route path="addorder" element={<AddOrder />}></Route>
                     <Route element={<ProtectedRoutes />}>
                       <Route path="user/profile" element={<Profile />} />
                     </Route>

@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('email');
             $table->string('phone');
             $table->enum('status', ['pending', 'out_for_delivery', 'delivered', 'cancelled'])->default('pending');
-            $table->enum('payment_method', ['cod', 'card']);
+            $table->enum('payment_method', ['card'])->default('card');
             $table->enum('payment_status', ['paid', 'not_paid']);
             $table->timestamps();
         });

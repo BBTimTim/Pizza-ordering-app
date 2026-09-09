@@ -4,12 +4,16 @@ const initialState = {
   items: JSON.parse(localStorage.getItem("items") || "[]"),
   totalQuantity: JSON.parse(localStorage.getItem("totalQuantity") || "0"),
   totalAmount: JSON.parse(localStorage.getItem("totalAmount") || "0"),
+  shippingCharge: JSON.parse(localStorage.getItem("shippingCharge") || "0"),
+  grandTotal: JSON.parse(localStorage.getItem("grandTotal") || "0"),
 };
 
 const setItemsToLocalStorage = (state) => {
        localStorage.setItem("items", JSON.stringify(state.items));
        localStorage.setItem("totalQuantity",JSON.stringify(state.totalQuantity),);
        localStorage.setItem("totalAmount", JSON.stringify(state.totalAmount));
+       localStorage.setItem("shippingCharge", JSON.stringify(state.shippingCharge));
+       localStorage.setItem("grandTotal", JSON.stringify(state.grandTotal));
 };
 
 const cartSlice = createSlice({
@@ -20,6 +24,8 @@ const cartSlice = createSlice({
       state.items = action.payload.items;
       state.totalQuantity = action.payload.totalQuantity;
       state.totalAmount = action.payload.totalAmount;
+      state.shippingCharge = action.payload.shippingCharge;
+      state.grandTotal = action.payload.grandTotal;
 
       setItemsToLocalStorage(state);
     },
@@ -57,7 +63,6 @@ const cartSlice = createSlice({
             toppings: newItem.toppings,
             quantity: 1,
             totalPrice,
-
           });
         } else {
           existingItem.quantity++;
@@ -65,6 +70,9 @@ const cartSlice = createSlice({
 
       state.totalQuantity++;
       state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0);
+      state.shippingCharge =  state.totalAmount >= 15000 ? 0 : 1200;
+      state.grandTotal = state.totalAmount + state.shippingCharge;
+
       setItemsToLocalStorage(state);
     },
 
@@ -90,7 +98,9 @@ removeItemFromCart: (state, action) => {
     } else {
       existingItem.quantity--;
     }
-    state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0 );
+    state.totalAmount = state.items.reduce((acc, item) => acc + item.totalPrice * item.quantity, 0);
+    state.shippingCharge =  state.totalAmount >= 15000 ? 0 : 1200;
+    state.grandTotal = state.totalAmount + state.shippingCharge;
   }
   setItemsToLocalStorage(state);
 },
@@ -99,10 +109,14 @@ removeItemFromCart: (state, action) => {
       state.items = [];
       state.totalQuantity = 0;
       state.totalAmount = 0;
+      state.shippingCharge = 0;
+      state.grandTotal = 0;
 
       localStorage.removeItem("items");
       localStorage.removeItem("totalQuantity");
       localStorage.removeItem("totalAmount");
+      localStorage.removeItem("shippingCharge");
+      localStorage.removeItem("grandTotal");
     },
      
   },

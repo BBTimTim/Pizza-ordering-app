@@ -7,6 +7,20 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+
+    public function index() {
+    $orders = Order::all();
+         return response()->json([
+        'data' => $orders,
+    ], 200);
+    }
+
+    public function show($id) {
+         $order = Order::findOrFail($id);
+         return response()->json([
+        'data' => $order,
+    ], 200);
+    }
     public function store(Request $request) {
         
     $validated = $request->validate([
@@ -30,7 +44,6 @@ class OrderController extends Controller
 
  return response()->json([
             'success' => 'Sikeres feltöltés!',
-            'order_id' => $order->id
         ], 200);
     }
 
@@ -57,8 +70,7 @@ class OrderController extends Controller
    $order->update($validated);
 
  return response()->json([
-            'success' => 'Sikeres feltöltés!',
-            'order_id' => $order->id
+            'success' => 'Sikeres módosítás!',
         ], 200);
     }
 public function destroy($id)

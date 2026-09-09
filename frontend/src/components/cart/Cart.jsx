@@ -1,24 +1,25 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addItemToCart,
-  clearCart,
-  removeItemFromCart,
-} from "../redux/cart/cartSlice";
+import { addItemToCart, clearCart, removeItemFromCart} 
+from "../redux/cart/cartSlice";
 import config from "../../../config";
+import EmptyCart from "./EmptyCart";
+import { Link } from "react-router-dom";
 
 const { img_url } = config;
 
 export default function Cart() {
   const cartItems = useSelector((state) => state.cart.items);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
+  const shippingCharge = useSelector((state) => state.cart.shippingCharge);
+  const grandTotal = useSelector((state) => state.cart.grandTotal);
 
   const dispatch = useDispatch();
 
   return (
     <>
         {cartItems.length === 0 ? (
-          <p>A kosarad üres.</p>
+         <EmptyCart />
         ) : (
           <section className="px-4 md:px-8 mt-6">
             <div className="max-w-2xl mx-auto lg:max-w-7xl">
@@ -34,7 +35,7 @@ export default function Cart() {
                         className="grid sm:grid-cols-3 items-start gap-4"
                         key={i}
                       >
-                        <div className="flex flex-col sm:items-center sm:flex-row gap-6 sm:col-span-2">
+                        <div className="flex flex-col sm:items-center sm:flex-row gap-4 sm:col-span-2">
                           <div className="shrink-0 bg-gray-100 p-2 rounded-md sm:w-28 sm:h-28 dark:bg-neutral-800">
                             <img
                               className="w-full h-full object-contain"
@@ -42,18 +43,32 @@ export default function Cart() {
                               src={`${img_url}/products/${item?.image}`}
                             />
                           </div>
+                          
                           <div>
                             <h3 className="text-base font-semibold text-slate-900 dark:text-slate-50">
-                              {item.name}
+                              {item.name} 
                             </h3>
 
-                            <div className="flex gap-4 mt-6">
+                             <div className="mt-1">
+                               {item.sizes.filter(size => item.selectedSize?.includes(String(size.id)))
+                                  .map(size => (
+                                    <p className="text-sm italic" key={size.id}>
+                                     Méret: {size.name} cm
+                                    </p>
+                                  ))}
+                                <h5 className="font-semibold text-sm">Extra feltétek:</h5>
+                                {item?.toppings.filter(topping => item.selectedToppings.includes(String(topping.id)))
+                                  .map(topping => (
+                                    <p className="text-sm italic" key={topping.id}>
+                                      {topping.name} - {topping.price} Ft
+                                    </p>
+                                  ))}
+                             </div>
+                          
+                            <div className="flex gap-2">
                               <div className="flex items-center px-2.5 py-1.5 border border-slate-300 text-slate-900 font-medium text-xs rounded-md sm:mt-6 dark:border-neutral-700 dark:text-slate-50 dark:bg-neutral-800">
-                                <p>
-                            
-                                </p>
                                 <button
-                                  onClick={() => dispatch(addItemToCart(item))}
+                                  onClick={() => dispatch(removeItemFromCart(item))}
                                   type="button"
                                   aria-label="Decrease quantity"
                                   className="cursor-pointer focus:outline-none focus-visible:ring-2
@@ -73,7 +88,7 @@ export default function Cart() {
                                 <span className="mx-3">{item.quantity} db</span>
                                 <button
                                   onClick={() =>
-                                    dispatch(removeItemFromCart(item))
+                                    dispatch(addItemToCart(item))
                                   }
                                   type="button"
                                   aria-label="Increase quantity"
@@ -102,6 +117,7 @@ export default function Cart() {
                         </div>
                       </li>
                     ))}
+
                   </ul>
                 </div>
 
@@ -114,14 +130,21 @@ export default function Cart() {
                     <li className="flex flex-wrap gap-4 text-sm">
                       Szállítási költség
                       <span className="ml-auto text-slate-900 font-semibold">
-                        {} Ft
+                        {shippingCharge} Ft
                       </span>
                     </li>
 
                     <li className="flex flex-wrap gap-4 text-sm text-slate-900">
-                      Fizetendő:
+                      Részösszeg:
                       <span className="ml-auto font-semibold">
                         {totalAmount} Ft
+                      </span>
+                    </li>
+
+                     <li className="flex flex-wrap gap-4 text-sm text-slate-900">
+                      Fizetendő:
+                      <span className="ml-auto font-semibold">
+                        {grandTotal} Ft
                       </span>
                     </li>
                   </ul>
@@ -131,7 +154,10 @@ export default function Cart() {
                       type="button"
                       className="w-full px-4 py-2.5 text-white text-sm font-semibold rounded-md cursor-pointer bg-blue-600 hover:bg-blue-700"
                     >
-                      Rendelés véglegesítése
+                      <Link to="/addorder">
+                       Rendelés véglegesítése
+                      </Link>
+                      
                     </button>
                     <button
                       onClick={() => dispatch(clearCart())}
