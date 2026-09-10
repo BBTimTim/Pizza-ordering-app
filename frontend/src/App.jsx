@@ -1,5 +1,5 @@
 import React, { Suspense, useContext } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Home from "./components/pages/Home";
 import Layout from "./components/layout/Layout.jsx";
@@ -12,6 +12,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "./components/redux/auth/authSlice.js";
 import Modal from "./components/common/Modal.jsx";
+import ConfirmationModal from "./components/common/ConfirmationModal.jsx";
 import { ModalContext } from "./components/context/ModalContext.jsx";
 
 const Register = React.lazy(() => import("./components/user/Register"));
@@ -28,6 +29,8 @@ const AddOrder = React.lazy(() => import("./components/order/AddOrder.jsx"),);
 const AddProducts = React.lazy(() => import("./components/admin/AddProducts.jsx"),);
 const AddSizes = React.lazy(() => import("./components/admin/AddSizes.jsx"),);
 const AddToppings = React.lazy(() => import("./components/admin/AddToppings.jsx"),);
+const Toppings = React.lazy(() => import("./components/admin/Toppings.jsx"),);
+const Sizes = React.lazy(() => import("./components/admin/Sizes.jsx"),);
 
 const AdminProducts = React.lazy(() => import("./components/admin/Products.jsx"),);
 const Editproduct = React.lazy(() => import("./components/admin/Editproduct.jsx"),);
@@ -36,11 +39,15 @@ const AminLayout = React.lazy(() => import("./components/admin/Layout.jsx"),);
 function App() {
 
  const user = useSelector(selectCurrentUser);
- const {open, handleLogout} = useContext(ModalContext);
+ const {open, handleLogout, handleCart, modalType} = useContext(ModalContext);
 
   const logErrorService = (error, errorInfo) => {
     console.log({error, errorInfo})
   }
+
+  const cart = useSelector((state) => state.cart);
+  const cartItems = cart.items;
+
   return (
     <>
       <ErrorBoundary 
@@ -48,7 +55,6 @@ function App() {
       onError={(error, errorInfo) => logErrorService(error, errorInfo)}
       >
         <Suspense fallback={<Loader />}>
-            <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Home />} />
@@ -70,13 +76,15 @@ function App() {
                         <Route path="addproducts" element={<AddProducts />} />
                         <Route path="addtoppings" element={<AddToppings />} />
                         <Route path="addsizes" element={<AddSizes />} />
+                        <Route path="sizes" element={<Sizes />} />
+                        <Route path="toppings" element={<Toppings />} />
                          <Route path="products" element={<AdminProducts />} />
                           <Route path="editproduct/:id" element={<Editproduct />} />
                        </Route> 
                   </Route>
               </Routes>
-              {open && <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
-          </BrowserRouter>
+              {open &&  <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
+              {open && modalType === "confirmation" && cartItems.length > 0 && <ConfirmationModal onConfirm={handleCart}>Vásárlás folytatása vagy megrendelés leadása?</ConfirmationModal>}
         </Suspense>
       </ErrorBoundary>
     </>

@@ -1,24 +1,42 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useContext, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
-import { useGetProductsQuery } from "../redux/products/productSlice";
+import { useGetProductsQuery, useSearchDataQuery } from "../redux/products/productSlice";
 import { useGetSizesQuery } from "../redux/size/sizeSlice";
 import { useGetToppingsQuery } from "../redux/toppings/toppingSlice";
 import { addItemToCart } from "../redux/cart/cartSlice";
+import { ModalContext } from "../context/ModalContext";
+import { useSearchParams } from "react-router-dom";
+import Loader from "../common/Loader";
+import Errors from "../common/Errors";
+import { GrCaretPrevious } from "react-icons/gr";
+import { GrCaretNext } from "react-icons/gr";
+import NoResult from "./NoResult";
 
 const { img_url } = config;
 
 export default function Products() {
-  
-  const { data: products } = useGetProductsQuery();
+
+  const  {handleConfirmationOpen} = useContext(ModalContext);
+  const [page, setPage] = useState(1)
+  const [searchParams] = useSearchParams();
+  const search = searchParams.get("search") || "";
+
+  const { data: results, isLoading, error, isFetching } = useSearchDataQuery({search,  page} );
+  const { data: products } = useGetProductsQuery(page);
   const { data: sizes } = useGetSizesQuery();
   const { data: toppings } = useGetToppingsQuery();
+
+  const displayedProducts = search
+      ? results?.data?.data || []
+      : products?.data?.data || [];
 
   const dispatch = useDispatch();
 
   const [selectedSizes, setSelectedSizes] = useState({});
   const [selectedToppings, setSelectedToppings] = useState({});
   const [success, setSuccess] = useState("");
+
 
   const handleSelect = (productId, e) => {
     const { value, checked } = e.target;
@@ -37,9 +55,25 @@ export default function Products() {
     }
   };
 
+  const cart = useSelector((state) => state.cart);
+  const cartItems = cart.items;
+
+
   const handleAddToCart = (product) => {
     const selectedSize = selectedSizes[product.id];
     const selectedToppingIds = selectedToppings[product.id] || [];
+
+    const alreadyInCart = cartItems.some(
+    (item) => item.id === product.id
+  )
+
+ if (alreadyInCart) {
+    const confirmed = window.confirm(
+      "Ez a termék már a kosárban van. Biztosan hozzáadod még egyszer?"
+    );
+
+    if (!confirmed) return;
+  }
 
     dispatch(
       addItemToCart({
@@ -51,15 +85,17 @@ export default function Products() {
       }),
     );
 
-    setSuccess("Kosárba helyezve!");
-
     setTimeout(() => {
-      setSuccess("");
-    }, 2000);
+      setSuccess("Kosárba helyezve!");
+      handleConfirmationOpen();
+    }, 1000);
   };
 
   return (
     <>
+     {isLoading && <Loader />}
+     {error && <Errors errors={error?.data?.errors} />}
+    
       {success && (
         <div className="flex justify-center m-5">
           <div
@@ -70,8 +106,13 @@ export default function Products() {
           </div>
         </div>
       )}
+
+{results?.data?.data?.length === 0 ? (
+         <NoResult />
+        ) : (
+<>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:p-3">
-  {products?.data?.map((item) => (
+  {displayedProducts?.map((item) => (
     <div
       key={item.id}
       className="bg-white shadow-md py-5 flex flex-col"
@@ -161,6 +202,28 @@ export default function Products() {
     </div>
   ))}
 </div>
+
+<div className="flex justify-center items-center gap-2 mt-8 mb-5">
+  <button
+    onClick={() => setPage((prev) => prev - 1)}
+    disabled={page === 1 || isFetching}
+    className="rounded-md border border-slate-300 py-2 px-3 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50"
+  >
+    <GrCaretPrevious />
+  </button>
+
+  <span className="px-3">{page}</span>
+
+  <button
+    onClick={() => setPage((prev) => prev + 1)}
+    disabled={isFetching}
+    className="rounded-md border border-slate-300 py-2 px-3 text-center text-sm transition-all shadow-sm hover:shadow-lg text-slate-600 hover:text-white hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-50"
+  >
+    <GrCaretNext />
+  </button>
+</div>   
+</>
+)}
     </>
   );
 }

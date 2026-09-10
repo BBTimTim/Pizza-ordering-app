@@ -3,7 +3,6 @@ import { RiSettings3Fill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 import { FaHome, FaPizzaSlice, FaList } from "react-icons/fa";
 import { IoMdResize } from "react-icons/io";
-import { BsCartPlus } from "react-icons/bs";
 import { IoAddCircleSharp } from "react-icons/io5";
 
 export default function SettingsButton() {
@@ -72,13 +71,23 @@ export default function SettingsButton() {
       </Link>
     </li>
 
-    <li>
+   <li>
       <Link
-        to="/admin/orders"
+        to="/admin/sizes"
         className="flex items-center gap-3 text-red-600 hover:bg-red-50"
       >
-        <BsCartPlus />
-        Rendelések
+        <IoMdResize />
+        Méretek 
+      </Link>
+    </li>
+
+   <li>
+      <Link
+        to="/admin/toppings"
+        className="flex items-center gap-3 text-red-600 hover:bg-red-50"
+      >
+        <IoMdResize />
+        Feltétek 
       </Link>
     </li>
   </ul>

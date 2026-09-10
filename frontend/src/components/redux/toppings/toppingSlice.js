@@ -4,6 +4,7 @@ export const toppingSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getToppings: builder.query({
       query: () => "/toppings",
+      providesTags: ["Toppings"],
     }),
 
     addTopping: builder.mutation({
@@ -20,6 +21,7 @@ export const toppingSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["Toppings"],
     }),
 
     removeTopping: builder.mutation({
@@ -27,6 +29,7 @@ export const toppingSlice = apiSlice.injectEndpoints({
         url: `/toppings/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Toppings"],
     }),
   }),
 });

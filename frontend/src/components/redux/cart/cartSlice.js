@@ -64,6 +64,7 @@ const cartSlice = createSlice({
             quantity: 1,
             totalPrice,
           });
+
         } else {
           existingItem.quantity++;
         }
@@ -117,8 +118,7 @@ removeItemFromCart: (state, action) => {
       localStorage.removeItem("totalAmount");
       localStorage.removeItem("shippingCharge");
       localStorage.removeItem("grandTotal");
-    },
-     
+    },    
   },
 });
 

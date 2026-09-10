@@ -4,8 +4,6 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
-use App\Models\Size;
-use App\Models\Topping;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -19,7 +17,7 @@ class ProductController extends Controller
         } else {
             $products = Product::where('status', 'active')
                 ->latest()
-                ->get();
+                ->paginate(8);
         }
         return response()->json([
             'data' => $products

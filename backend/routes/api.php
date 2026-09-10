@@ -6,6 +6,7 @@ use App\Http\Controllers\admin\ToppingController;
 use App\Http\Controllers\CartItemController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +64,8 @@ Route::get('products', [ProductController::class, 'index']);
 Route::get('featured-products', [ProductController::class, 'featured']);
 Route::get('sizes', [SizeController::class, 'index']);
 Route::get('toppings', [ToppingController::class, 'index']);
+
+Route::get('products-result', [SearchController::class, 'searchProducts']);
 
 Route::controller(OrderController::class)->middleware(['auth:sanctum', 'status:user'])->group(function () {
         Route::get('orders', 'index');

@@ -60,11 +60,12 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
               <div className="text-xs font-normal opacity-60">
                 {pizza.description}
               </div>
-            </div>
-            <p>
+                <p> 
               {pizza?.status == "active" && <span className="text-green-600">Aktív</span> }
               {pizza?.status == "block" && <span className="text-red-600">Inaktív</span> }
             </p>
+            </div>
+
             <button className="btn btn-square btn-ghost text-lg">
               <Link to={`/admin/editproduct/${pizza.id}`}>
                 <VscEditSparkle className="text-red-500" />

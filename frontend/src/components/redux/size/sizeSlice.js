@@ -4,6 +4,7 @@ export const sizeSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getSizes: builder.query({
       query: () => "/sizes",
+      providesTags: ["Sizes"],
     }),
 
     addSize: builder.mutation({
@@ -12,6 +13,7 @@ export const sizeSlice = apiSlice.injectEndpoints({
         method: "POST",
         body: size,
       }),
+      invalidatesTags: ["Sizes"],
     }),
 
     updateSize: builder.mutation({
@@ -20,6 +22,7 @@ export const sizeSlice = apiSlice.injectEndpoints({
         method: "PATCH",
         body,
       }),
+      invalidatesTags: ["Sizes"],
     }),
 
     removeSize: builder.mutation({
@@ -27,6 +30,7 @@ export const sizeSlice = apiSlice.injectEndpoints({
         url: `/sizes/${id}`,
         method: "DELETE",
       }),
+      invalidatesTags: ["Sizes"],
     }),
   }),
 });

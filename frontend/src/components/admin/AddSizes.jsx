@@ -78,7 +78,7 @@ export default function AddSizes() {
               className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="price_multiplier"
             >
-              Szorzó
+              Szorzó %
             </label>
             <input
               onChange={handleChange}

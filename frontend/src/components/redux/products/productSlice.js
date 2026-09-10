@@ -4,11 +4,11 @@ export const productSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
 
 getProducts: builder.query({
-  query: () => "/products",
+  query: (page = 1) => `/products?page=${page}`,
   providesTags: (result) =>
-    result?.data
+    result?.data.data
       ? [
-          ...result.data.map(({ id }) => ({
+          ...result.data.data.map(({ id }) => ({
             type: "Products",
             id,
           })),
@@ -22,6 +22,13 @@ getProduct: builder.query({
   providesTags: (result, error, id) => [
     { type: "Products", id },
   ],
+}),
+
+searchData: builder.query({
+  query: ({ search, page = 1 }) =>
+    `/products-result?search=${encodeURIComponent(search)}&page=${page}`,
+
+  providesTags: ["Products"],
 }),
 
 addProduct: builder.mutation({
@@ -68,4 +75,5 @@ export const {
   useAddProductMutation,
   useUpdateProductMutation,
   useRemoveProductMutation,
+  useSearchDataQuery,
 } = productSlice;

@@ -85,7 +85,7 @@ export default function Hero() {
           className="relative overflow-hidden min-h-[550px] flex items-center bg-no-repeat bg-center bg-cover"
           style={{ backgroundImage: `url(${Piknic})` }}
         >
-          <div className="absolute h-[120px] w-[450px] sm:w-[550px] sm:h-[200px] bg-red-700 rounded-full z-0 -left-22 sm:-left-25 inset-x-0"></div>
+          <div className="absolute h-[120px] w-[450px] sm:w-[550px] sm:h-[200px] bg-red-700 rounded-full z-0 -left-15 sm:-left-25"></div>
           <div className="container mx-auto relative z-10">
             <div className="grid grid-cols-1 sm:grid-cols-2 items-center gap-8">
               <div className="text-center sm:text-left px-8">

@@ -10,6 +10,7 @@ import { useDispatch } from "react-redux";
 import { clearCart } from "../redux/cart/cartSlice";
 
 export default function AddOrder() {
+
   const cart = useSelector((state) => state.cart);
   const cartItems = cart.items;
 
@@ -35,8 +36,7 @@ export default function AddOrder() {
 
   const [success, setSuccess] = useState(null);
 
-  const [AddOrder, { isLoading, error }] =
-    useAddOrderMutation();
+  const [AddOrder, { isLoading, error }] = useAddOrderMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -68,10 +68,8 @@ export default function AddOrder() {
         delivery_charges: 0,
       });
 
-      setSuccess("Sikeres Rendelés!");
-
       setTimeout(() => {
-        setSuccess("Sikeres fizetés");
+        setSuccess("Sikeres Rendelés");
         navigate("/", { replace: true });
       }, 2000);
     } catch (error) {
