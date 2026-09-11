@@ -8,8 +8,8 @@ export default function Featuredproducts() {
   const { data: products } = useGetFeaturedProductsQuery();
   return (
     <>
-      <div className="">
-        <h2 className="p-2 mt-5 indent-4 bg-red-100 w-50 sm:w-55 rounded-full text-l xl:text-lg font-bold text-red-700 tracking-wide">
+      <div className="px-2">
+        <h2 className="px-3 py-3 mt-5 indent-2 bg-red-100 w-50 sm:w-55 rounded-full text-l xl:text-lg font-bold text-red-700 tracking-wide">
           Kiemelt ajánlataink
         </h2>
 

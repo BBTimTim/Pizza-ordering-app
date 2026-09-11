@@ -17,6 +17,11 @@ getProducts: builder.query({
       : ["Products"],
 }),
 
+getPopularProducts: builder.query({
+  query: (page = 1) => `/popular-products?page=${page}`,
+  providesTags: ["Products"],
+}),
+
 getProduct: builder.query({
   query: (id) => `/products/${id}`,
   providesTags: (result, error, id) => [
@@ -72,6 +77,7 @@ export const {
   useGetProductsQuery,
   useGetProductQuery,
   useGetFeaturedProductsQuery,
+  useGetPopularProductsQuery,
   useAddProductMutation,
   useUpdateProductMutation,
   useRemoveProductMutation,

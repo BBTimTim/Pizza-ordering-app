@@ -1,0 +1,54 @@
+import { apiSlice } from "../../../app/api/apiSlice";
+
+export const orderItemsSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+
+    getOrderitems: builder.query({
+      query: () => "/orderitems",
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({
+                type: "Orderitems",
+                id,
+              })),
+              "Orderitems",
+            ]
+          : ["Orderitems"],
+    }),
+
+    getOrderitem: builder.query({
+      query: (id) => `/orderitems/${id}`,
+      providesTags: (result, error, id) => [
+        { type: "Orderitems", id },
+      ],
+    }),
+
+    updateOrderitems: builder.mutation({
+      query: ({ id, body }) => ({
+        url: `/orderitems/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Orderitems", id },
+        "Orderitems",
+      ],
+    }),
+
+    removeOrderitem: builder.mutation({
+      query: (id) => ({
+        url: `/orderitems/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Orderitems"],
+    }),
+  }),
+});
+
+export const {
+  useGetOrderitemsQuery,
+  useGetOrderitemQuery,
+  useRemoveOrderitemMutation,
+  useUpdateOrderitemsMutation,
+} = orderItemsSlice;

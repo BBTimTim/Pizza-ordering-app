@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../redux/cart/cartSlice";
+import { sendOrderConfirmation } from "../order/OrderConfirmation";
 
 export default function AddOrder() {
 
@@ -42,7 +43,7 @@ export default function AddOrder() {
     e.preventDefault();
 
     try {
-      await AddOrder({
+     const createdOrder = await AddOrder({
         ...order,
         sub_total: cart.totalAmount,
         delivery_charges: cart.shippingCharge,
@@ -53,8 +54,10 @@ export default function AddOrder() {
         payment_status: "paid",
       }).unwrap();
 
-      dispatch(clearCart());
+      await sendOrderConfirmation(createdOrder.data);
 
+      dispatch(clearCart());
+      
       setOrder({
         name: "",
         email: "",
@@ -68,8 +71,8 @@ export default function AddOrder() {
         delivery_charges: 0,
       });
 
+      setSuccess("Sikeres Rendelés");
       setTimeout(() => {
-        setSuccess("Sikeres Rendelés");
         navigate("/", { replace: true });
       }, 2000);
     } catch (error) {
@@ -218,7 +221,7 @@ export default function AddOrder() {
   <div className="mb-8 border-t border-b py-5">
     <div className="flex justify-between mb-3">
       <span className="font-bold">Részösszeg:</span>
-      <span>{cart.totalAmount} Ft</span>
+      <span>{cart.totalAmount.toFixed(0)} Ft</span>
     </div>
 
     <div className="flex justify-between mb-3">
@@ -228,7 +231,7 @@ export default function AddOrder() {
 
     <div className="flex justify-between text-green-700 text-lg">
       <span className="font-bold">Végösszeg:</span>
-      <span className="font-bold">{cart.grandTotal} Ft</span>
+      <span className="font-bold">{cart.grandTotal.toFixed(0)} Ft</span>
     </div>
   </div>
  <section className="border border-slate-300 rounded-2xl p-6 md:p-8">
@@ -365,7 +368,7 @@ export default function AddOrder() {
     >
       {isLoading
         ? "Feldolgozás..." 
-        : `Fizetés ${cart.grandTotal} Ft`}
+        : `Fizetés ${cart.grandTotal.toFixed(0)} Ft`}
     </button>
     <div className="text-center text-sm text-slate-500 pt-2">
       Fizetési adatai biztonságosan, titkosítva kerülnek

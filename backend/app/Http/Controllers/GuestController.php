@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
@@ -26,6 +27,9 @@ class GuestController extends Controller
     }
     $validated['password'] = Hash::make($validated['password']);
     User::create($validated);
+    
+    event(new Registered(User::where('email', $request->email)->first()));
+
     return response(['success' => 'Sikeres regisztráció!'], 201);
   }
 

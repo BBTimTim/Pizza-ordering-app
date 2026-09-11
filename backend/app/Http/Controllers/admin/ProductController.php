@@ -66,6 +66,18 @@ class ProductController extends Controller
             'data' =>  $featuredProducts
         ], 200);
     }
+
+    public function popular()
+    {
+        $popularItems = Product::withSum('orderItems', 'quantity')
+                                    ->orderByDesc('order_items_sum_quantity')
+                                    ->get();
+
+        return response()->json([
+            'data' =>  $popularItems
+        ], 200);
+    }
+
     public function update(Request $request, $id)
     {
 

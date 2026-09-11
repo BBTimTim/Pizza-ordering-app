@@ -4,14 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyRegistration;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+
 
 use Illuminate\Auth\Passwords\CanResetPassword;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, CanResetPassword;
 
@@ -55,5 +58,8 @@ public function orders()
 {
     return $this->hasMany(Order::class);
 }
-
+public function sendEmailVerificationNotification()
+{
+    $this->notify(new VerifyRegistration);
+}
 }

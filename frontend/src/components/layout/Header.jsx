@@ -41,9 +41,9 @@ export default function Header() {
         <div
           id="collapseMenu"
           tabIndex="-1"
-          className="hidden peer-checked:block lg:flex lg:items-center max-lg:bg-white max-lg:w-1/2 max-lg:fixed max-lg:top-0 max-lg:right-0 max-lg:h-full max-lg:shadow-md max-lg:overflow-auto max-sm:w-[180px] z-50 outline-none"
+          className="hidden peer-checked:block lg:flex lg:items-center rounded-bl-lg max-lg:bg-white max-lg:w-1/2 max-lg:fixed max-lg:top-0 max-lg:right-0 max-lg:h-[350px] max-lg:shadow-md max-lg:overflow-auto max-sm:w-[180px] z-50 outline-none"
         >
-          <div className="flex justify-end p-6 lg:hidden">
+          <div className="flex justify-end p-4 lg:hidden">
             <label
               htmlFor="menu-toggle"
               className="cursor-pointer focus:outline-none"
@@ -59,6 +59,14 @@ export default function Header() {
             </label>
           </div>
           <ul className="flex flex-col gap-4 font-normal text-sm lg:flex-row lg:items-center max-lg:p-6 lg:ml-12">
+                <li>
+              <Link
+                className="text-red-600 transition hover:text-red-500/75"
+                to=""
+              >
+                Kezdőoldal
+              </Link>
+            </li>
             <li>
               <Link
                 className="text-red-600 transition hover:text-red-500/75"

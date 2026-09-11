@@ -137,14 +137,14 @@ export default function Cart() {
                     <li className="flex flex-wrap gap-4 text-sm text-slate-900">
                       Részösszeg:
                       <span className="ml-auto font-semibold">
-                        {totalAmount} Ft
+                        {totalAmount.toFixed(0)} Ft
                       </span>
                     </li>
 
                      <li className="flex flex-wrap gap-4 text-sm text-slate-900">
                       Fizetendő:
                       <span className="ml-auto font-semibold">
-                        {grandTotal} Ft
+                        {grandTotal.toFixed(0)} Ft
                       </span>
                     </li>
                   </ul>

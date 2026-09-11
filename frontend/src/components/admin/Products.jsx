@@ -43,7 +43,7 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
   </div>
 )}
 
-      {products?.data?.map((pizza) => (
+      {products?.data?.data.map((pizza) => (
         <ul key={pizza.id} className="list">
           <li className="list-row">
             <div>
