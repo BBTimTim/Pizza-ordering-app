@@ -1,223 +1,91 @@
-# Pizza-ordering-app
+# One more slice
 
-## Projekt leírása
+Pizza rendelési webalkalmazás React frontenddel és Laravel backenddel.
 
-Pizza rendelő webalkalmazás React frontenddel és Laravel backenddel.
+## Rendszer célja
+A projekt célja, hogy a felhasználók böngészhessenek a termékek között, kosárba tegyék a kiválasztott ételeket, leadják a rendelést, valamint adminisztrátori felületen kezeljék a termékeket, méreteket, feltéteket és rendelések állapotát.
 
-Az alkalmazás három fő felhasználói szerepköre:
+## Főbb funkciók
+- publikus terméklista és keresés
+- kosár és rendelésleadás
+- bejelentkezés és regisztráció
+- profil kezelés és jelszó-visszaállítás
+- admin termékkezelés (létrehozás, módosítás, törlés)
+- admin méret- és topping-kezelés
+- rendeléskezelés és jogosultságkorlátozás
 
-- Guest
-- User
-- Admin
+## Technológiai stack
 
-## Tervezés
+### Frontend
+- React
+- Vite
+- Redux Toolkit
+- React Router
+- Tailwind CSS + DaisyUI
 
-Az alkalmazás különböző felületekre és funkciókra van osztva.
+### Backend
+- Laravel 10
+- PHP 8.1
+- Eloquent ORM
+- Sanctum autentikáció
+- REST API
 
-- Guest felület
-- User felület
-- Admin felület
-- Termék megjelenítés
-- Kosár
-- Rendelés
-- Jogosultságkezelés
+### Adatbázis
+- MySQL / MariaDB kompatibilis relációs adatbázis
+- Laravel migrációk
 
-## Guest felület:
-### Funkciók
-
-- Főoldal 
-- Termékek 
-- Regisztráció
-- Bejelentkezés
-- Kosár
-
-## User felület:
-### Funkciók
-
-- Profil oldal
-- Profil kezelése
-- Termékek megtekintése
-- Kosár 
-- Termék mennyiségének módosítása
-- Termék eltávolítása a kosárból
-- Rendelés leadása
-- Kijelentkezés
-
-## Admin felület:
-### Funkciók
-
-* Dashboard
-- Termékek kezelése
-- Új termék létrehozása
-- Termék módosítása
-- Termék törlése
-- Kép feltöltése
-- Termék státuszának kezelése
-- Kiemelt termék kezelése
-* Felhasználók kezelése
-- Rendelések kezelése
-- Rendelés státuszának módosítása
-
-## Layoutok
-
-### Guest Layout
-
-- Header
-- Home
-- Products
-- Cart
-- Footer
-
-### Admin Layout
-
-
-
-## Termékek
-
-A termékek a Laravel API-ból érkeznek.
-
-Egy termék adatai:
-
-- ID
-- Név
-- Leírás
-- Ár
-- Kép
-- mennyiség választó
-- Státusz
-- Kiemelt státusz
-
-Hozzá kapcsolódó adatok:
-- méret választó
-- feltétek
-
-A termékek Redux `productSlice` segítségével kerülnek tárolásra.
-
-A termékek megjelenítése `.map()` segítségével történik.
-
-## Kosár
-
-### Funkciók
-
-- Termék hozzáadása
-- Termék eltávolítása
-- Mennyiség növelése
-- Mennyiség csökkentése
-- Részösszeg számítása
-- Teljes végösszeg számítása
-
-A kosár állapotát Redux Toolkit kezeli.
-
-## Redux Toolkit
-
-A frontend állapotkezelésére Redux Toolkit használható.
-
-### Redux struktúra
+## Projekt struktúra
 
 ```text
-src/
-│
-├── app/
-│   └── api/
-│       └── apiSlice.js
-│
-└── components/
-    └── redux/
-        ├── auth/
-        │   ├── authSlice.js
-        │   └── authApiSlice.js
-        │
-        ├── productSlice.jsx
-        ├── cartSlice.jsx
-        └── store.jsx
+One-more-slice/
+├── backend/        # Laravel API és üzleti logika
+├── frontend/       # React alkalmazás
+├── docs/           # technikai dokumentáció
+├── README.md       # projekt összefoglaló
+└── .gitignore
 ```
 
-### User Slice
+## Fejlesztői környezet
 
-A bejelentkezett felhasználó állapotát kezeli.
-
-```js
-{
-  user: null,
-  token: null
-}
+### Backend
+```bash
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
 ```
 
-### Product Slice
-
-A termékeket kezeli.
-
-```js
-{
-  products: []
-}
+### Frontend
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-### Cart Slice
-
-A kosár tartalmát kezeli.
-
-```js
-{
-  cart: []
-}
-```
-
-## Authentication
-
-A bejelentkezés Laravel API-n keresztül történik.
-
-## API kommunikáció
-
-A React frontend REST API-n keresztül kommunikál a Laravel backenddel.
-
-### Authentication
-
+## Alap API végpontok
 ```text
 POST /api/register
 POST /api/login
-POST /api/logout
+GET  /api/products
+GET  /api/featured-products
+GET  /api/popular-products
+POST /api/addorder
 ```
 
-### Products
+## Szerepkörök
+- Guest: publikus oldalakon böngészés, regisztráció, bejelentkezés
+- User: kosár, profil, rendelésleadás
+- Admin: teljes adminisztrációs felület és CRUD műveletek
 
-```text
-GET    /api/products
-POST   /api/products
-PATCH  /api/products/{id}
-DELETE /api/products/{id}
-```
+## Dokumentáció
+A részletesebb technikai leírás itt található:
 
-### Orders
+- [docs/TECHNIKAI_DOKUMENTACIO.md](docs/TECHNIKAI_DOKUMENTACIO.md)
 
-```text
-GET  /api/orders
-POST /api/orders
-PATCH  /api/orders/{id}
-```
-
-## Jogosultságkezelés
-
-
-### Guest
-
-Csak a publikus oldalak érhetők el.
-
-### User
-
-A bejelentkezett felhasználók számára elérhetők a User oldalak.
-
-### Admin
-
-Az Admin kizárólag megfelelő jogosultsággal érheti el az adminisztrációs felületet.
-
-## Hibakezelés
-
-A Laravel validációs hibákat JSON formátumban küldi vissza.
-
-A hibák megjelenítését egy újrahasznosítható `Errors` komponens végzi.
-
-## Projekt struktúra
+## Megjegyzés
+A projekt lokális fejlesztésre van hangolva, és jelenleg a frontend és backend külön, saját dev szervereken fut.
 
 ```text
 src/
