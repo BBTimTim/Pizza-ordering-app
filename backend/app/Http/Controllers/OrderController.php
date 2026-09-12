@@ -59,7 +59,6 @@ class OrderController extends Controller
             ], 200);
     }
 
-
     public function update(Request $request, $id) {
 
     $validated = $request->validate([
@@ -86,11 +85,5 @@ class OrderController extends Controller
             'success' => 'Sikeres módosítás!',
             'data' => $order
         ], 200);
-    }
-public function destroy($id)
-    {
-        $order = Order::findOrFail($id);
-        $order->delete();
-        return response()->json(['success' => 'Sikeresen törölve!'], 200);
     }
 }

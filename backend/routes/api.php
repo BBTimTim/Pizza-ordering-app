@@ -60,23 +60,10 @@ Route::controller(ToppingController::class)->middleware(['auth:sanctum', 'status
         Route::delete('toppings/{id}', 'destroy');
     });
 
-Route::controller(OrderController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::get('orders', 'index');
-        Route::get('orders/{id}', 'show');
-        Route::post('orders/{id}', 'update');
-        Route::delete('orders/{id}', 'destroy');
-    });
-
 Route::get('products', [ProductController::class, 'index']);
-Route::get('orderitems', [OrderItemsController::class, 'index']);
 Route::get('featured-products', [ProductController::class, 'featured']);
 Route::get('popular-products', [ProductController::class, 'popular']);
 Route::get('sizes', [SizeController::class, 'index']);
 Route::get('toppings', [ToppingController::class, 'index']);
 
 Route::get('products-result', [SearchController::class, 'searchProducts']);
-
-Route::controller(OrderController::class)->middleware(['auth:sanctum', 'status:user'])->group(function () {
-        Route::get('orders', 'index');
-        Route::get('cart', 'index');
-    });

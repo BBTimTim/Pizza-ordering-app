@@ -29,10 +29,10 @@ export default function Products() {
       {isLoading && <Loader />}
       {error && <Errors errors={error?.data?.errors} />}
 
-      {isSuccess && (
-        <div className="flex justify-center m-5">
+         {isSuccess && (
+        <div className="flex justify-center m-5 px-5">
           <div
-            className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
+            className="text-green-900 px-5 py-2 font-medium bg-green-200 rounded-full"
             role="alert"
           >
             <p className="text-green-900 font-bold">{data?.success}</p>

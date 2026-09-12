@@ -345,14 +345,14 @@ export default function AddOrder() {
       >
         Elfogadom a {""}
         <a
-          href="#"
+          href="/aszf"
           className="underline font-medium text-blue-700"
         >
           Felhasználási feltételeket {""}
         </a>
         és az {""}
         <a
-          href="#"
+          href="/privacy"
           className="underline font-medium text-blue-700"
         >
           Adatvédelmi szabályzatot

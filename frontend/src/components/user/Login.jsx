@@ -36,7 +36,7 @@ export default function Login() {
       );
 
       if (result.user?.status === "admin") {
-        navigate("/admin", { replace: true });
+        navigate("/admin/profile", { replace: true });
       } else {
         navigate("/user/profile", { replace: true });
       }

@@ -70,7 +70,7 @@ export default function Header() {
             <li>
               <Link
                 className="text-red-600 transition hover:text-red-500/75"
-                to=""
+                to="about"
               >
                 Rólunk
               </Link>

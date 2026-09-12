@@ -17,6 +17,9 @@ import { ModalContext } from "./components/context/ModalContext.jsx";
 
 const Register = React.lazy(() => import("./components/user/Register"));
 const Login = React.lazy(() => import("./components/user/Login"));
+const ASZF = React.lazy(() => import("./components/pages/ASZF.jsx"),);
+const Privacy = React.lazy(() => import("./components/pages/Privacy.jsx"),);
+const About = React.lazy(() => import("./components/pages/About.jsx"),);
 
 const Forgetpassword = React.lazy(() => import("./components/user/Forgetpassword"),);
 const Resetpassword = React.lazy(() => import("./components/user/Resetpassword"),);
@@ -31,6 +34,7 @@ const AddSizes = React.lazy(() => import("./components/admin/AddSizes.jsx"),);
 const AddToppings = React.lazy(() => import("./components/admin/AddToppings.jsx"),);
 const Toppings = React.lazy(() => import("./components/admin/Toppings.jsx"),);
 const Sizes = React.lazy(() => import("./components/admin/Sizes.jsx"),);
+const AdminProfile = React.lazy(() => import("./components/admin/Profile"),);
 
 const AdminProducts = React.lazy(() => import("./components/admin/Products.jsx"),);
 const Editproduct = React.lazy(() => import("./components/admin/Editproduct.jsx"),);
@@ -58,6 +62,9 @@ function App() {
               <Routes>
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Home />} />
+                   <Route path="aszf" element={<ASZF />} />
+                    <Route path="about" element={<About />} />
+                   <Route path="privacy" element={<Privacy />} />
                     <Route path="contact" element={<Contact />}></Route>
                     <Route path="register" element={user ? <Home /> : <Register />} />
                     <Route path="login" element={user ? <Home /> : <Login />} />
@@ -77,6 +84,7 @@ function App() {
                         <Route path="addtoppings" element={<AddToppings />} />
                         <Route path="addsizes" element={<AddSizes />} />
                         <Route path="sizes" element={<Sizes />} />
+                        <Route path="profile" element={<AdminProfile />} />
                         <Route path="toppings" element={<Toppings />} />
                          <Route path="products" element={<AdminProducts />} />
                           <Route path="editproduct/:id" element={<Editproduct />} />

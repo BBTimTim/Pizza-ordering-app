@@ -82,9 +82,9 @@ const [updateProduct, { data } ] = useUpdateProductMutation();
       <h2 className="text-center font-bold md:text-xl">Termék módosítása</h2>
       {isLoading && <Loader />}
       {isSuccess && (
-        <div className="flex justify-center m-5  px-5 py-2">
+        <div className="flex justify-center m-5 px-5">
           <div
-            className="text-green-900 font-medium bg-green-200 rounded-full"
+            className="text-green-900 px-5 py-2 font-medium bg-green-200 rounded-full"
             role="alert"
           >
             <p className="text-green-900 font-bold">{data?.success}</p>
@@ -194,7 +194,7 @@ const [updateProduct, { data } ] = useUpdateProductMutation();
               Kép
             </label>
             <input
-              className="file-input n"
+              className="file-input"
               id="image"
               type="file"
               name="image"
@@ -205,7 +205,7 @@ const [updateProduct, { data } ] = useUpdateProductMutation();
                 <img
                   src={imagePreview}
                   alt="Előnézet"
-                  className="w-[200px] h-[200px] object-cover rounded-lg"
+                  className="w-[200px] h-[200px] object-cover rounded-lg m-4"
                 />
               </div>
             )}

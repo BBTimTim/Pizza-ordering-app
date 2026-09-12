@@ -1,25 +1,31 @@
 import React from "react";
 import ShowMap from "../map/ShowMap";
 
-
 export default function Footer() {
   return (
     <>
       <footer className="bottom-0 bg-[#C32323] w-full max-w-[1350px] mx-auto text-white pt-8 lg:pt-8 px-4 sm:px-8 md:px-16 lg:px-24 rounded-tl-3xl rounded-tr-3xl overflow-hidden">
-        <div className="flex flex-wrap justify-between gap-12 md:gap-6">
+        <div className="flex flex-wrap justify-between">
           <div className="max-w-80">
             <a href="/" className="block">
               <img src="/images/slice.png" alt="logo" className="w-[60px]" />
             </a>
-            <div></div>
           </div>
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 md:space-y-12">
             <ul className="space-y-3 text-sm font-medium">
               <li>
                 <h4 className="py-1 text-lg">Kapcsolat:</h4>
                 <p>Email: slice@codessence.fejlessz.hu</p>
                 <p>Tel: +36 70 662 67 54</p>
+              </li>
+            </ul>
+            <ul>
+              <li>
+                <a href="aszf">ÁSZF</a>
+              </li>
+              <li>
+                <a href="privacy">Adatkezelési tájékoztató</a>
               </li>
             </ul>
           </div>
@@ -33,20 +39,6 @@ export default function Footer() {
               </div>
             </div>
           </div>
-          <ul className="grid gap-2 md:flex md:gap-8 text-xs md:text-lg">
-            <li>
-              <a href="#">ÁSZF</a>
-            </li>
-            <li>
-              <a href="#">Szállítás és fizetés</a>
-            </li>
-            <li>
-              <a href="#">Adatkezelési tájékoztató</a>
-            </li>
-            <li>
-              <a href="#">Elállás a szerződéstől</a>
-            </li>
-          </ul>
         </div>
 
         <div className="max-w-7xl mx-auto mt-4 pt-4 border-t border-white flex justify-between items-center">
