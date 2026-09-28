@@ -1,0 +1,29 @@
+# „VPS” bemutató: egy Linux szerver konténerben, SSH-val (2222) és weboldallal (8100).
+# Indítás: ./setup.sh   Deploy: ./deploy.sh v1   Visszaállás: ./rollback.sh   Belépés: ./ssh.sh   Leállítás: ./down.sh
+
+name: oms-vps
+
+services:
+  vps:
+    build: .
+    image: one-more-slice/vps:local
+    hostname: onemoreslice-vps
+    restart: unless-stopped
+    ports:
+      - "2222:22"    # SSH
+      - "8100:80"    # weboldal
+    volumes:
+      - ./keys:/keys:ro            # a nyilvános SSH-kulcs (a start.sh bemásolja a deploy felhasználóhoz)
+      - www:/var/www/onemoreslice  # releases/, shared/, current
+      - mysql:/var/lib/mysql
+      - logs:/var/log/nginx
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep sshd && pgrep nginx && pgrep php-fpm"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  www:
+  mysql:
+  logs:
