@@ -1,5 +1,4 @@
 ---
-name: technikai-dokumentacio
 description: Egy technikai dokumentációt létrehozó prompt
 ---
 
@@ -133,3 +132,6 @@ Sorold fel:
 - Minden fejezet tartalmazzon konkrét technikai részleteket, ne csak általános leírást.
 - Alkalmazz táblázatokat, felsorolásokat és diagramokat, ahol indokolt.
 - Írj kifejezetten fejlesztői, üzemeltetői és architekt szemlélettel.
+
+## Kiegészítés
+$ARGUMENTS

@@ -1,6 +1,6 @@
 ---
-name: polish
 description: Csiszolás – magyar hibaüzenetek, oldalcímek és favicon, képoptimalizálás, függőségek biztonsági frissítése
+argument-hint: "Mit csiszoljunk? (pl. új oldal címe, új hibaüzenet, képkezelés, csomagfrissítés)"
 ---
 
 # Csiszolás (polish)
@@ -13,7 +13,7 @@ description: Csiszolás – magyar hibaüzenetek, oldalcímek és favicon, képo
 - **Függőségek:** `composer audit` → a nem-Laravel csomagok frissítve (36 → 3 figyelmeztetés). A maradék 3 a Laravel 10-et érinti, ez csak Laravel 11/12-re váltással javítható.
 
 ## Feladat
-${input:feladat:Mit csiszoljunk? (pl. új oldal címe, új hibaüzenet, képkezelés, csomagfrissítés)}
+$ARGUMENTS
 
 ## Elvárások
 1. Minden felhasználói szöveg és hibaüzenet magyar legyen; új validációs mezőnél vedd fel a magyar nevét az `attributes` listába.

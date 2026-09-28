@@ -1,6 +1,6 @@
 ---
-name: opening-hours
 description: A pizzéria nyitvatartásának módosítása, és hogy zárva tartás alatt ne lehessen rendelni
+argument-hint: "Mit módosítsunk? (pl. új nyitvatartás, szünnap, ünnepnap, rendelési határidő zárás előtt)"
 ---
 
 # Nyitvatartás (opening hours)
@@ -14,7 +14,7 @@ description: A pizzéria nyitvatartásának módosítása, és hogy zárva tart�
 - **Tesztek:** `backend/tests/Feature/ShopHoursTest.php`; az `OrderTest` rögzített, nyitvatartási időben fut (`Carbon::setTestNow`, kedd 12:00).
 
 ## Feladat
-${input:feladat:Mit módosítsunk? (pl. új nyitvatartás, szünnap, ünnepnap, rendelési határidő zárás előtt)}
+$ARGUMENTS
 
 ## Elvárások
 1. A nyitvatartást csak a `config/shop.php`-ban módosítsd; a frontend és az üzenetek onnan veszik.

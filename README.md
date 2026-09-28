@@ -49,7 +49,7 @@ One-more-slice/
 ├── frontend/           # React alkalmazás
 ├── docker/             # Dockerfile-ok és nginx konfiguráció
 ├── docs/               # technikai dokumentáció
-├── .github/prompts/    # újrahasznosítható Copilot promptok
+├── .claude/commands/   # Claude Code parancsok (/deploy, /vps, /polish …)
 ├── docker-compose.yml  # a teljes helyi környezet
 ├── .env.example        # Docker Compose beállítások mintája
 └── README.md           # projekt összefoglaló
@@ -118,6 +118,26 @@ A részletesebb technikai leírás itt található:
 
 - [docs/TECHNIKAI_DOKUMENTACIO.md](docs/TECHNIKAI_DOKUMENTACIO.md)
 - [docs/devops/README.md](docs/devops/README.md) – DevOps & infra követelmény-mátrix: Docker, CI/CD, deploy minták (blue-green, rolling, zero-downtime), VPS és SSH, monitoring, backup, AWS
+
+## Claude Code parancsok
+
+A `.claude/commands/` mappában újrahasznosítható utasítások vannak a gyakori feladatokhoz. A Claude Code-ban `/név` formában hívhatók, a név utáni szöveg a konkrét feladat (pl. `/opening-hours vasárnap is legyen zárva`).
+
+| Parancs | Mire való |
+|---|---|
+| `/new-api` | új API végpont a Laravel route-tól az RTK Query-ig, teszttel |
+| `/admin-crud` | új admin erőforrás (migráció, modell, végpontok, React oldalak) |
+| `/order` | rendelési és árazási logika módosítása |
+| `/opening-hours` | nyitvatartás módosítása |
+| `/polish` | csiszolás: magyar üzenetek, oldalcímek, képek, csomagfrissítés |
+| `/docker-error` | Docker indítása és hibakeresés |
+| `/deploy` | blue-green és rolling deploy bemutató |
+| `/vps` | VPS, SSH és zero-downtime Laravel deploy |
+| `/monitoring-backup` | naplóelemzés, mentés, visszaállítás |
+| `/before-commit` | commit előtti ellenőrzés |
+| `/technikai-dokumentacio` | a technikai dokumentáció elkészítése |
+
+A magyar dokumentáció frissítéséhez a `docs-update-hu` skill tartozik (`.claude/skills/`).
 
 ## Megjegyzés
 A projekt lokális fejlesztésre van hangolva. Dockerrel egyetlen címen (`localhost:8080`) fut minden; Docker nélkül a frontend és a backend külön, saját dev szervereken fut.

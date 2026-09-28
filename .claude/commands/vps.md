@@ -1,6 +1,6 @@
 ---
-name: vps
 description: A „VPS” szerver (Linux, SSH, nginx + php-fpm, MariaDB) kezelése és a zero-downtime Laravel deploy (releases + current symlink)
+argument-hint: "Mit szeretnél? (pl. deploy, visszaállás, jogosultság ellenőrzése, naplók megnézése)"
 ---
 
 # VPS és zero-downtime Laravel deploy
@@ -14,7 +14,7 @@ description: A „VPS” szerver (Linux, SSH, nginx + php-fpm, MariaDB) kezelés
 - Scriptek: `setup.sh` (kulcs, szerver, képek), `deploy.sh <verzió>` (artifact a Docker image-ekből → scp → `server/release.sh` ssh-n), `rollback.sh`, `ssh.sh`, `down.sh`.
 
 ## Feladat
-${input:feladat:Mit szeretnél? (pl. deploy, visszaállás, jogosultság ellenőrzése, naplók megnézése)}
+$ARGUMENTS
 
 ## Elvárások
 1. A szerveren a `deploy` felhasználóként dolgozz (`./deploy/vps/ssh.sh`), rootként ne.

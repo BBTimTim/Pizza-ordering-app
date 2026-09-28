@@ -597,7 +597,7 @@ One-more-slice/
 ├── docker/
 │   ├── backend/               # Dockerfile, php.ini, entrypoint.sh
 │   └── web/                   # Dockerfile, nginx default.conf
-├── .github/prompts/           # újrahasznosítható Copilot promptok
+├── .claude/commands/          # Claude Code parancsok (/deploy, /vps, /polish …), .claude/skills/
 ├── docker-compose.yml
 ├── .env.example
 ├── README.md

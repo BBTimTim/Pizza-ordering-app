@@ -1,6 +1,6 @@
 ---
-name: deploy
 description: Leállás nélküli deploy minták (blue-green, rolling) futtatása, bemutatása vagy módosítása, a leállás-figyelővel együtt
+argument-hint: "Mit szeretnél? (pl. bemutató futtatása, új lépés a deploy.sh-ba, hibakeresés)"
 ---
 
 # Deploy minták – blue-green és rolling
@@ -12,7 +12,7 @@ description: Leállás nélküli deploy minták (blue-green, rolling) futtatása
 - A `/api/health` az `APP_VERSION`-t is visszaadja; ebből látszik, melyik verzió válaszol.
 
 ## Feladat
-${input:feladat:Mit szeretnél? (pl. bemutató futtatása, új lépés a deploy.sh-ba, hibakeresés)}
+$ARGUMENTS
 
 ## Elvárások
 1. A fő környezet (8080) image-eit használd (`one-more-slice/backend:local`, `one-more-slice/web:local`); ha hiányoznak, `docker compose build backend web`.

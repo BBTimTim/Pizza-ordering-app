@@ -1,6 +1,6 @@
 ---
-name: monitoring-backup
 description: Naplók elemzése (nginx, Laravel), adatbázis- és képmentés, visszaállítási próba és visszaállítás
+argument-hint: "Mit szeretnél? (pl. naplóelemzés egy hibához, mentés, visszaállítási próba)"
 ---
 
 # Monitoring és backup
@@ -13,7 +13,7 @@ description: Naplók elemzése (nginx, Laravel), adatbázis- és képmentés, vi
 - Laravel naplók: `docker compose logs backend`; nginx: `docker compose logs web`.
 
 ## Feladat
-${input:feladat:Mit szeretnél? (pl. naplóelemzés egy hibához, mentés, visszaállítási próba)}
+$ARGUMENTS
 
 ## Elvárások
 1. Hibakeresésnél előbb a `logs-report.sh`-t futtasd, 5xx esetén a backend naplóját is nézd meg.

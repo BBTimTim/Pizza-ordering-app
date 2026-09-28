@@ -1,12 +1,12 @@
 ---
-name: admin-crud
 description: Új adminisztrálható erőforrás (migráció, modell, admin végpontok, React lista- és űrlapoldal, menüpont) a Sizes/Toppings minta szerint
+argument-hint: "Az erőforrás neve és mezői, pl. kupon (kód, kedvezmény %, lejárat)"
 ---
 
 # Új admin erőforrás
 
 ## Feladat
-${input:eroforras:Az erőforrás neve és mezői, pl. kupon (kód, kedvezmény %, lejárat)}
+$ARGUMENTS
 
 ## Minta
 A méretek kezelése a mintája: `backend/app/Http/Controllers/admin/SizeController.php`, `frontend/src/components/admin/AddSizes.jsx` (űrlap), `frontend/src/components/admin/Sizes.jsx` (lista), `frontend/src/components/redux/size/sizeSlice.js`.
