@@ -93,7 +93,7 @@ function App() {
                        </Route> 
                   </Route>
               </Routes>
-              {open &&  <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
+              {open && modalType === "logout" && <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
               {open && modalType === "confirmation" && cartItems.length > 0 && <ConfirmationModal onConfirm={handleCart}>Vásárlás folytatása vagy megrendelés leadása?</ConfirmationModal>}
         </Suspense>
       </ErrorBoundary>

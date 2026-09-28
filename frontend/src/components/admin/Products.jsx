@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Modal from "../common/Modal";
 import { VscEditSparkle } from "react-icons/vsc";
 import { MdDeleteForever } from "react-icons/md";
 import config from "../../../config";
@@ -11,7 +13,12 @@ const { img_url } = config;
 export default function Products() {
   const { data: products } = useGetProductsQuery();
 
-  const handleDelete = async (id) => {
+  // Törlés előtt megerősítést kérünk
+  const [deleteId, setDeleteId] = useState(null);
+
+  const handleDelete = async () => {
+    const id = deleteId;
+    setDeleteId(null);
     try {
       await removeProduct(id).unwrap();
     } catch (error) {
@@ -26,6 +33,11 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
       <h2 className="p-3 indent-4 bg-red-100 rounded-full text-lg font-bold text-red-700 tracking-wide">
         Pizzák:
       </h2>
+      {deleteId && (
+        <Modal onConfirm={handleDelete} onCancel={() => setDeleteId(null)} confirmLabel="Törlés">
+          Biztosan törlöd ezt a pizzát?
+        </Modal>
+      )}
       {isLoading && <Loader />}
       {error && <Errors errors={error?.data?.errors} />}
 
@@ -71,7 +83,8 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
               </Link>
             </button>
             <button
-              onClick={() => handleDelete(pizza.id)}
+              onClick={() => setDeleteId(pizza.id)}
+              aria-label="Törlés"
               className="btn btn-square btn-ghost text-2xl"
             >
               <MdDeleteForever className="text-red-500" />

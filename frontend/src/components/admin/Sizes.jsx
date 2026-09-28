@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Modal from "../common/Modal";
 import { MdDeleteForever } from "react-icons/md";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
@@ -9,7 +11,12 @@ import {
 export default function Products() {
   const { data: sizes } = useGetSizesQuery();
 
-  const handleDelete = async (id) => {
+  // Törlés előtt megerősítést kérünk
+  const [deleteId, setDeleteId] = useState(null);
+
+  const handleDelete = async () => {
+    const id = deleteId;
+    setDeleteId(null);
     try {
       await removeSize(id).unwrap();
     } catch (error) {
@@ -25,6 +32,11 @@ export default function Products() {
       <h2 className="px-3 py-2 mb-2 indent-4 bg-red-100 rounded-full text-lg font-bold text-red-700 tracking-wide">
         Méretek:
       </h2>
+      {deleteId && (
+        <Modal onConfirm={handleDelete} onCancel={() => setDeleteId(null)} confirmLabel="Törlés">
+          Biztosan törlöd ezt a méretet?
+        </Modal>
+      )}
       {isLoading && <Loader />}
       {error && <Errors errors={error?.data?.errors} />}
 
@@ -47,7 +59,8 @@ export default function Products() {
                 {size.name} cm - Ár szorzó: {size.price_multiplier} %
               </p>
               <button
-                onClick={() => handleDelete(size.id)}
+                onClick={() => setDeleteId(size.id)}
+              aria-label="Törlés"
                 className="btn btn-square btn-ghost text-2xl"
               >
                 <MdDeleteForever className="text-red-500" />
