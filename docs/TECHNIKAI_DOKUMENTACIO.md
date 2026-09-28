@@ -68,6 +68,8 @@ A frontend fő feladata az ügyféloldali navigáció, terméklista megjelenít�
 | Middleware | StatusMiddleware, autentikációs és route middleware |
 | Email / reset | Laravel Password reset és email verification (a vásárlói leveleket a frontend küldi EmailJS-szel) |
 | Rate limit | `throttle` middleware a bejelentkezésen, regisztráción, jelszó-visszaállításon és a fizetésen |
+| Nyelv | magyar (`locale` = `hu`, `lang/hu/`): validációs, hitelesítési és jelszó-visszaállítási üzenetek |
+| Képkezelés | PHP GD: feltöltéskor legfeljebb 1200 px széles WebP (`App\Services\ImageOptimizer`); meglévő képekhez `php artisan images:optimize` |
 
 A backend monolitikus megoldás: központi API, Eloquent modellek és kontrollerek kezelik a logikát.
 
@@ -454,6 +456,7 @@ A rendszer alapvető OWASP szempontokból:
 - a rendelés végösszegét és fizetési státuszát a szerver határozza meg; a kliens által küldött ár és `payment_status` figyelmen kívül marad (manipulált kérésre is a szerver ára érvényes, ezt Feature teszt ellenőrzi)
 - a fizetés sikerességét a backend közvetlenül a Stripe-tól kérdezi le, nem a klienstől fogadja el
 - brute force elleni védelem: `throttle` a hitelesítési és fizetési végpontokon
+- függőségek: `composer audit` alapján a sebezhető csomagok frissítve (36 → 3 figyelmeztetés); a maradék 3 a Laravel 10-et érinti (a 10-es ág támogatása lejárt), ezek csak Laravel 11/12-re váltással javíthatók
 
 ---
 
@@ -553,6 +556,7 @@ npm run lint
 - frontend konzol: browser devtools
 - `php artisan route:list` a végpontök ellenőrzéséhez
 - `php artisan migrate:fresh --seed` a teljes adatbázis újraépítéséhez
+- `php artisan images:optimize` a régi, nagy termékképek WebP-re alakításához (GD kell hozzá; Dockerben: `docker compose exec backend php artisan images:optimize`)
 
 ---
 
