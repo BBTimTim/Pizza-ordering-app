@@ -1,4 +1,3 @@
-import React from "react";
 import { MdDeleteForever } from "react-icons/md";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 import { ModalContext } from "../context/ModalContext";

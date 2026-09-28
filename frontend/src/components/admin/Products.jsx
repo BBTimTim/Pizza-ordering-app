@@ -1,4 +1,3 @@
-import React  from "react";
 import { VscEditSparkle } from "react-icons/vsc";
 import { MdDeleteForever } from "react-icons/md";
 import config from "../../../config";

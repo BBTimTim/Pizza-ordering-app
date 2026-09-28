@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import { Provider } from "react-redux";
 import store from "./components/redux/store.jsx";
-import { ModalProvider } from "./components/context/ModalContext.jsx";
+import { ModalProvider } from "./components/context/ModalProvider.jsx";
 import { BrowserRouter } from "react-router-dom";
 
 createRoot(document.getElementById("root")).render(

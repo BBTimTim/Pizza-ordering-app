@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import config from "../../../config";
 import { useSearchParams } from "react-router-dom";

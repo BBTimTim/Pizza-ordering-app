@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 import { useRegisterMutation } from "../redux/auth/authApiSlice";

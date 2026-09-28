@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
 
-        protected $fillable = [
+    protected $fillable = [
         'name',
         'image',
         'price',
@@ -18,17 +18,13 @@ class Product extends Model
         'is_featured',
     ];
 
-public function cartItems()
-{
-    return $this->hasMany(CartItem::class);
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItems::class);
+    }
 }
-
-public function orderItems()
-{
-    return $this->hasMany(OrderItems::class);
-}
-
-}
-
-
-

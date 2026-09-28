@@ -5,11 +5,12 @@ use App\Http\Controllers\admin\SizeController;
 use App\Http\Controllers\admin\ToppingController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\OrderController;
-use App\Http\Controllers\OrderItemsController;
 use App\Http\Controllers\SearchController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,38 +28,48 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
     $request->fulfill();
-    return redirect('http://localhost:5173/login');
+
+    return redirect(config('app.frontend_url').'/login');
 })->middleware(['signed'])->name('verification.verify');
 
-Route::get('/profile', function () {
-})->middleware(['auth', 'verified']);
+Route::get('/profile', function () {})->middleware(['auth', 'verified']);
 
-Route::post('register', [GuestController::class, 'register']);
-Route::post('login', [GuestController::class, 'login']);
-Route::post('resetpassword', [GuestController::class, 'resetpassword']);
-Route::post('forgetpassword', [GuestController::class, 'forgetpassword']);
+Route::controller(GuestController::class)->middleware('throttle:10,1')->group(function () {
+    Route::post('register', 'register');
+    Route::post('login', 'login');
+    Route::post('resetpassword', 'resetpassword');
+    Route::post('forgetpassword', 'forgetpassword');
+});
 
-Route::post('addorder', [OrderController::class, 'store']);
+Route::post('checkout', [OrderController::class, 'checkout'])->middleware('throttle:10,1');
+Route::post('orders/{id}/confirm-payment', [OrderController::class, 'confirmPayment'])->middleware('throttle:20,1');
+Route::get('my-orders', [OrderController::class, 'myOrders'])->middleware('auth:sanctum');
+
+Route::controller(OrderController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
+    Route::get('orders', 'index');
+    Route::get('orders/{id}', 'show');
+    Route::post('orders/{id}/status', 'updateStatus');
+});
 
 Route::controller(ProductController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::post('addproducts', 'store');
-        Route::get('products', 'index');
-        Route::get('products/{id}', 'show');
-        Route::post('editproduct/{id}', 'update');
-        Route::delete('products/{id}', 'destroy');
-    });
+    Route::post('addproducts', 'store');
+    Route::get('products', 'index');
+    Route::get('products/{id}', 'show');
+    Route::post('editproduct/{id}', 'update');
+    Route::delete('products/{id}', 'destroy');
+});
 
 Route::controller(SizeController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::post('addsizes', 'store');
-        Route::get('sizes', 'index');
-        Route::delete('sizes/{id}', 'destroy');
-    });
+    Route::post('addsizes', 'store');
+    Route::get('sizes', 'index');
+    Route::delete('sizes/{id}', 'destroy');
+});
 
 Route::controller(ToppingController::class)->middleware(['auth:sanctum', 'status:admin'])->group(function () {
-        Route::post('addtoppings', 'store');
-        Route::get('toppings', 'index');
-        Route::delete('toppings/{id}', 'destroy');
-    });
+    Route::post('addtoppings', 'store');
+    Route::get('toppings', 'index');
+    Route::delete('toppings/{id}', 'destroy');
+});
 
 Route::get('products', [ProductController::class, 'index']);
 Route::get('featured-products', [ProductController::class, 'featured']);
@@ -67,3 +78,13 @@ Route::get('sizes', [SizeController::class, 'index']);
 Route::get('toppings', [ToppingController::class, 'index']);
 
 Route::get('products-result', [SearchController::class, 'searchProducts']);
+
+Route::get('health', function () {
+    try {
+        DB::select('SELECT 1');
+    } catch (Throwable) {
+        return response()->json(['status' => 'hiba', 'database' => 'nem elérhető'], 503);
+    }
+
+    return response()->json(['status' => 'ok', 'database' => 'ok'], 200);
+});

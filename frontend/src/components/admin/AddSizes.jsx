@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useAddSizeMutation } from "../redux/size/sizeSlice";
 import Errors from "../common/Errors";
 import Loader from "../common/Loader";

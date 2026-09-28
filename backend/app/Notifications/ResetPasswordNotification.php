@@ -9,7 +9,9 @@ use Illuminate\Notifications\Notification;
 class ResetPasswordNotification extends Notification
 {
     use Queueable;
+
     public $token;
+
     /**
      * Create a new notification instance.
      */
@@ -38,7 +40,7 @@ class ResetPasswordNotification extends Notification
             ->line('Megkaptuk a kérésedet az elfelejtett jelszó visszaállítására.')
             ->action(
                 'Jelszó visszaállítása',
-                'http://localhost:5173/resetpassword?token=' . $this->token . '&email=' . urlencode($notifiable->email)
+                'http://localhost:5173/resetpassword?token='.$this->token.'&email='.urlencode($notifiable->email)
             )
             ->line('Ha nem Te kértél jelszó-visszaállító emailt, nyugodtan hagyd figyelmen kívül ezt az üzenetet.');
     }

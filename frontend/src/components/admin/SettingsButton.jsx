@@ -1,7 +1,6 @@
-import React from "react";
 import { RiSettings3Fill } from "react-icons/ri";
 import { Link } from "react-router-dom";
-import { FaHome, FaPizzaSlice, FaList } from "react-icons/fa";
+import { FaHome, FaPizzaSlice, FaList, FaReceipt } from "react-icons/fa";
 import { IoMdResize } from "react-icons/io";
 import { IoAddCircleSharp } from "react-icons/io5";
 
@@ -28,6 +27,16 @@ export default function SettingsButton() {
       >
         <FaHome />
         Home
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/admin/orders"
+        className="flex items-center gap-3 text-red-600 hover:bg-red-50"
+      >
+        <FaReceipt />
+        Rendelések
       </Link>
     </li>
 

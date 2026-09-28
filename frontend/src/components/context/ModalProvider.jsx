@@ -1,9 +1,9 @@
-import { createContext, useState } from "react";
+import { useState } from "react";
+import { ModalContext } from "./ModalContext";
 import { useDispatch } from "react-redux";
 import { logout } from "../redux/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
-export const ModalContext = createContext();
 
 export function ModalProvider({ children }) {
   const [open, setOpen] = useState(false);
