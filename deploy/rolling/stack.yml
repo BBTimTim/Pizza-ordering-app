@@ -1,0 +1,100 @@
+# Rolling deploy bemutató – Docker Swarm stack
+# A backend 3 példányban (replika) fut. Frissítéskor a Swarm egyesével cseréli őket:
+# elindít egy új példányt, megvárja, hogy egészséges legyen, és csak utána állítja le a régit.
+# Ugyanez az elv működik az AWS ECS-ben is (rolling update, minimum healthy percent).
+# Indítás: ./up.sh   Deploy: ./deploy.sh v2   Visszaállás: ./rollback.sh   Leállítás: ./down.sh
+
+x-backend-env: &backend-env
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_KEY: ${APP_KEY}
+  APP_URL: http://localhost:8095
+  FRONTEND_URL: http://localhost:8095
+  LOG_CHANNEL: stderr
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_DATABASE: onemoreslice
+  DB_USERNAME: onemoreslice
+  DB_PASSWORD: secret
+
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: onemoreslice
+      MYSQL_USER: onemoreslice
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - db-data:/var/lib/mysql
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -prootsecret --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  # Egyszer lefutó feladat: adatbázis-migráció és demó adatok. Hiba esetén (pl. még nem fut a MySQL) újrapróbálja.
+  migrate:
+    image: ${BACKEND_IMAGE:-one-more-slice/backend:local}
+    command: ["true"]
+    environment:
+      <<: *backend-env
+      RUN_MIGRATIONS: "true"
+    networks: [data]
+    deploy:
+      mode: replicated-job
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 20
+
+  backend:
+    image: ${BACKEND_IMAGE:-one-more-slice/backend:local}
+    environment:
+      <<: *backend-env
+      RUN_MIGRATIONS: "false"
+      APP_VERSION: ${APP_VERSION:-v1}
+    volumes:
+      - uploads:/var/www/html/public/uploads
+    networks: [data, app]
+    # A php-fpm SIGQUIT-re befejezi a folyamatban lévő kéréseket, és csak utána áll le (a SIGTERM azonnal leállítaná)
+    stop_signal: SIGQUIT
+    stop_grace_period: 20s
+    healthcheck:
+      test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    deploy:
+      replicas: 3
+      update_config:
+        parallelism: 1           # egyszerre egy példányt cserél
+        order: start-first       # előbb elindítja az újat, csak utána állítja le a régit
+        delay: 5s                # két csere között ennyit vár
+        monitor: 10s             # ennyi ideig figyeli az új példányt, mielőtt sikeresnek tekinti
+        failure_action: rollback # ha az új példány elbukik, magától visszaáll
+      rollback_config:
+        parallelism: 1
+        order: start-first
+
+  web:
+    image: ${WEB_IMAGE:-one-more-slice/web:local}
+    ports:
+      - "8095:80"
+    volumes:
+      - uploads:/var/www/uploads:ro
+    networks: [app]
+    deploy:
+      replicas: 1
+
+volumes:
+  db-data:
+  uploads:
+
+networks:
+  data:
+    driver: overlay
+  app:
+    driver: overlay

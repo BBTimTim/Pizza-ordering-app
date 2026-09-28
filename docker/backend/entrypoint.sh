@@ -11,8 +11,13 @@ if [ -z "$APP_KEY" ]; then
 fi
 
 php artisan config:cache
-php artisan migrate --force
-php artisan db:seed --force
+
+# Több példány esetén (rolling deploy) a migrációt egy külön, egyszer lefutó feladat végzi,
+# ezért ott RUN_MIGRATIONS=false – így a példányok nem futtatják egyszerre ugyanazt a migrációt
+if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
+    php artisan migrate --force
+    php artisan db:seed --force
+fi
 
 chown -R www-data:www-data storage bootstrap/cache public/uploads
 
