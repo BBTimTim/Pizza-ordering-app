@@ -2,7 +2,7 @@
 
 Ez a dokumentum a DevOps & infra követelmények minden pontja mellé megadja, **hol teljesül** a projektben, és **hogyan mutatható be**.
 
-Jelmagyarázat: ✅ megvalósítva és kipróbálva · 🔶 részben · 📄 konfiguráció és leírás, futtatás nélkül (fizetős szolgáltatás)
+Jelmagyarázat: ✅ megvalósítva és kipróbálva · 📄 konfiguráció és leírás, futtatás nélkül (fizetős szolgáltatás)
 
 Minden helyi bemutató ingyenes, és a Docker Desktopon kívül nem igényel semmit.
 
@@ -51,7 +51,7 @@ Minden helyi bemutató ingyenes, és a Docker Desktopon kívül nem igényel sem
 | Linting (ESLint, Pint) | ✅ | `.github/workflows/ci.yml` – frontend és backend job | GitHub → Actions |
 | Build | ✅ | `npm run build` + a teljes Docker környezet felépítése | GitHub → Actions |
 | Test | ✅ | `php artisan test` (11 Feature teszt) + füstteszt a futó Docker környezeten | GitHub → Actions |
-| Egyszerű deployment workflow | 🔶 | a `master`-en a kész image-ek a GHCR-be kerülnek (publish job) – **automatikus telepítés még nincs** | GitHub → Packages |
+| Egyszerű deployment workflow | ✅ | `.github/workflows/deploy.yml`: ha a CI a `master`-en zöld, SSH-n telepít a VPS-re (`deploy/vps/deploy.sh`) és ellenőrzi a verziót; a kész image-ek a GHCR-be is felkerülnek | GitHub → Actions → Deploy (vagy „Run workflow”) |
 
 ## 6. AWS Lightsail, ECS/Fargate alapok
 
@@ -84,7 +84,7 @@ Minden helyi bemutató ingyenes, és a Docker Desktopon kívül nem igényel sem
 
 ---
 
-## Projekt – javasolt sorrend
+## Vizsgabemutató – javasolt sorrend
 
 1. `docker compose up -d --build` → `docker compose ps` (Docker, Compose, healthcheck)
 2. GitHub → Actions: egy zöld CI futás (CI/CD)
