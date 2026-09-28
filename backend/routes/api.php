@@ -6,6 +6,7 @@ use App\Http\Controllers\admin\ToppingController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SearchController;
+use App\Services\ShopHours;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,6 +79,15 @@ Route::get('sizes', [SizeController::class, 'index']);
 Route::get('toppings', [ToppingController::class, 'index']);
 
 Route::get('products-result', [SearchController::class, 'searchProducts']);
+
+// Nyitvatartás: nyitva vagyunk-e most, és a heti rend
+Route::get('shop-status', function (ShopHours $shopHours) {
+    return response()->json([
+        'open' => $shopHours->isOpen(),
+        'message' => $shopHours->message(),
+        'hours' => $shopHours->weekly(),
+    ], 200);
+});
 
 Route::get('health', function () {
     try {

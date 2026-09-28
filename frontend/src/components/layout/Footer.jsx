@@ -1,4 +1,5 @@
 import ShowMap from "../map/ShowMap";
+import ShopStatus from "../common/ShopStatus";
 
 export default function Footer() {
   return (
@@ -19,6 +20,10 @@ export default function Footer() {
                 <p>Tel: +36 70 662 67 54</p>
               </li>
             </ul>
+            <div className="max-w-60">
+              <h4 className="py-1 text-lg font-medium">Nyitvatartás:</h4>
+              <ShopStatus showHours />
+            </div>
             <ul>
               <li>
                 <a href="aszf">ÁSZF</a>
