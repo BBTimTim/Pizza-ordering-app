@@ -220,28 +220,40 @@ export default function Products() {
                     </select>
                   </div>
 
-                  <div className="mt-4">
-                    {toppings?.data?.map((topping) => (
-                      <label
-                        className="flex items-center gap-2 py-1"
-                        htmlFor={`topping-${item.id}-${topping.id}`}
-                        key={topping.id}
-                      >
-                        <input
-                          type="checkbox"
-                          className="checkbox"
-                          id={`topping-${item.id}-${topping.id}`}
-                          name="toppings"
-                          value={topping.id}
-                          onChange={(e) => handleSelect(item.id, e)}
-                        />
+                  {/* Extra feltétek: alapból becsukva, csak aki kér extrát, az nyitja le (több is választható) */}
+                  <details className="mt-4 rounded-lg border border-slate-200 group">
+                    <summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm font-bold text-gray-700 select-none">
+                      <span>
+                        Extra feltétek
+                        {(selectedToppings[item.id] || []).length > 0 &&
+                          ` (${(selectedToppings[item.id] || []).length} kiválasztva)`}
+                      </span>
+                      <span className="transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
+                    </summary>
+                    <div className="px-3 pb-2">
+                      {toppings?.data?.map((topping) => (
+                        <label
+                          className="flex items-center gap-2 py-1"
+                          htmlFor={`topping-${item.id}-${topping.id}`}
+                          key={topping.id}
+                        >
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            id={`topping-${item.id}-${topping.id}`}
+                            name="toppings"
+                            value={topping.id}
+                            checked={(selectedToppings[item.id] || []).includes(String(topping.id))}
+                            onChange={(e) => handleSelect(item.id, e)}
+                          />
 
-                        <span className="text-sm">
-                          {topping.name} (+{topping.price} Ft)
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                          <span className="text-sm">
+                            {topping.name} (+{topping.price} Ft)
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
 
                   <div className="mt-auto pt-6 text-center">
                     <button
