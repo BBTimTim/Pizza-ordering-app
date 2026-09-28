@@ -91,12 +91,12 @@ jobs:
         if: always()
         run: docker compose down -v
 
-  # 4. Image-ek publikálása a GitHub Container Registrybe (ingyenes) – csak a main ágon
+  # 4. Image-ek publikálása a GitHub Container Registrybe (ingyenes) – csak a master ágon
   publish:
     name: Image-ek publikálása (GHCR)
     runs-on: ubuntu-latest
     needs: docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     permissions:
       contents: read
       packages: write
