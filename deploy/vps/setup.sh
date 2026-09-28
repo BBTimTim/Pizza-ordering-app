@@ -16,7 +16,7 @@ docker compose up -d --build --wait
 # 3. A demó termékképek egyszeri feltöltése a szerver közös (shared) mappájába
 source ./ssh-options.sh
 echo "Termékképek feltöltése (scp)..."
-scp "${SCP_OPTS[@]}" ../../backend/public/uploads/products/* "deploy@localhost:/var/www/onemoreslice/shared/uploads/products/"
+scp "${SCP_OPTS[@]}" ../../backend/public/uploads/products/*.webp "deploy@localhost:/var/www/onemoreslice/shared/uploads/products/"
 
 echo
 echo "A szerver fut. Belépés: ./ssh.sh   Első telepítés: ./deploy.sh v1   Weboldal: http://localhost:8100"

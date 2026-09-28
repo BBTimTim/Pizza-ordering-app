@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Services\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -32,7 +33,7 @@ class ProductController extends Controller
         return response($product);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, ImageOptimizer $optimizer)
     {
         $validated = $request->validate([
             'name' => ['required'],
@@ -50,7 +51,8 @@ class ProductController extends Controller
             $imageName = time().'.'.$image->getClientOriginalExtension();
             $image->move(public_path('uploads/products/'), $imageName);
 
-            $product->image = $imageName;
+            // Átméretezés és WebP – a nagy képek így nem lassítják az oldalt
+            $product->image = $optimizer->optimize(public_path('uploads/products'), $imageName);
             $product->save();
         }
 
@@ -80,7 +82,7 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, ImageOptimizer $optimizer, $id)
     {
 
         $validated = $request->validate([
@@ -107,7 +109,7 @@ class ProductController extends Controller
             $imageName = time().'.'.$image->getClientOriginalExtension();
             $image->move(public_path('uploads/products'), $imageName);
 
-            $product->image = $imageName;
+            $product->image = $optimizer->optimize(public_path('uploads/products'), $imageName);
             $product->save();
         }
 

@@ -44,14 +44,14 @@ class DatabaseSeeder extends Seeder
         }
 
         $products = [
-            ['Margherita', 'Paradicsomszósz, mozzarella, friss bazsalikom.', 2490, 'yes', '1788585425.png'],
-            ['Sonkás-gombás', 'Paradicsomszósz, mozzarella, sonka, gomba.', 2890, 'yes', '1788595321.png'],
-            ['Pepperoni', 'Paradicsomszósz, mozzarella, csípős szalámi.', 2990, 'yes', '1788868205.png'],
-            ['Négysajtos', 'Tejfölös alap, mozzarella, gorgonzola, parmezán, cheddar.', 3190, 'no', '1788868257.png'],
-            ['Hawaii', 'Paradicsomszósz, mozzarella, sonka, ananász.', 2890, 'no', '1788868353.png'],
-            ['Songoku', 'Paradicsomszósz, mozzarella, sonka, gomba, kukorica.', 2990, 'no', '1788868394.png'],
-            ['Baconos', 'Paradicsomszósz, mozzarella, bacon, lilahagyma.', 3090, 'no', '1788868440.png'],
-            ['Vegetáriánus', 'Paradicsomszósz, mozzarella, paprika, gomba, olívabogyó.', 2790, 'no', '1788868566.png'],
+            ['Margherita', 'Paradicsomszósz, mozzarella, friss bazsalikom.', 2490, 'yes', '1788585425.webp'],
+            ['Sonkás-gombás', 'Paradicsomszósz, mozzarella, sonka, gomba.', 2890, 'yes', '1788595321.webp'],
+            ['Pepperoni', 'Paradicsomszósz, mozzarella, csípős szalámi.', 2990, 'yes', '1788868205.webp'],
+            ['Négysajtos', 'Tejfölös alap, mozzarella, gorgonzola, parmezán, cheddar.', 3190, 'no', '1788868257.webp'],
+            ['Hawaii', 'Paradicsomszósz, mozzarella, sonka, ananász.', 2890, 'no', '1788868353.webp'],
+            ['Songoku', 'Paradicsomszósz, mozzarella, sonka, gomba, kukorica.', 2990, 'no', '1788868394.webp'],
+            ['Baconos', 'Paradicsomszósz, mozzarella, bacon, lilahagyma.', 3090, 'no', '1788868440.webp'],
+            ['Vegetáriánus', 'Paradicsomszósz, mozzarella, paprika, gomba, olívabogyó.', 2790, 'no', '1788868566.webp'],
         ];
 
         foreach ($products as [$name, $description, $price, $featured, $image]) {

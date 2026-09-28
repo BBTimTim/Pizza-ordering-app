@@ -38,7 +38,7 @@ export default function Cart() {
                       >
                         <div className="flex flex-col sm:items-center sm:flex-row gap-4 sm:col-span-2">
                           <div className="shrink-0 bg-gray-100 p-2 rounded-md sm:w-28 sm:h-28 dark:bg-neutral-800">
-                            <img
+                            <img loading="lazy"
                               className="w-full h-full object-contain"
                               alt={item.name}
                               src={`${img_url}/products/${item?.image}`}

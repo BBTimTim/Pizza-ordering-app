@@ -61,7 +61,7 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
           <li className="list-row">
             <div>
               {pizza.image && (
-                <img
+                <img loading="lazy"
                   className="size-12 rounded-sm"
                   alt={pizza.name}
                   src={`${img_url}/products/${pizza?.image}`}

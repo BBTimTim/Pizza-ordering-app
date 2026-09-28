@@ -174,7 +174,7 @@ export default function Products() {
                 key={item.id}
                 className="bg-white shadow-md py-5 flex flex-col"
               >
-                <img
+                <img loading="lazy"
                   className="w-full max-w-[300px] h-auto object-cover mx-auto"
                   src={`${img_url}/products/${item?.image}`}
                   alt={item.name}
