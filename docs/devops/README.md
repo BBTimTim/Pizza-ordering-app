@@ -58,7 +58,7 @@ Minden helyi bemutató ingyenes, és a Docker Desktopon kívül nem igényel sem
 | Követelmény | Állapot | Hol van | Bemutatás |
 |---|---|---|---|
 | Lightsail | 📄 | `deploy/aws/lightsail/launch-script.sh`, `docker-compose.prod.yml` | `deploy/aws/PARANCSOK.md` (A rész) |
-| Task definition | 📄 | `deploy/aws/ecs/task-definition.json` (Fargate, 2 konténer, SSM titkok, EFS, awslogs) | fájl bemutatása |
+| Task definition | 📄 | `deploy/aws/ecs/task-definition.json` (Fargate, 2 konténer, healthcheck, naplózás a CloudWatch-ba) | fájl bemutatása |
 | Service | 📄 | `deploy/aws/ecs/service.json` (2 példány, rolling, circuit breaker) | fájl bemutatása |
 | Load balancer | 📄 | `deploy/aws/ecs/target-group.json` | fájl bemutatása |
 | Healthcheck | ✅ / 📄 | `GET /api/health` (adatbázissal és verzióval); Docker, Swarm, ECS és ALB healthcheck | `curl http://localhost:8080/api/health` |

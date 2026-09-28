@@ -10,10 +10,10 @@
 |---|---|
 | `lightsail/launch-script.sh` | Lightsail VPS első indulásakor lefutó szkript: frissítések, Docker, deploy felhasználó, SSH hardening, ufw tűzfal, fail2ban |
 | `lightsail/docker-compose.prod.yml` | éles futtatás a Lightsail szerveren, a CI által a GHCR-be feltöltött image-ekkel; naplók a CloudWatch-ba |
-| `ecs/task-definition.json` | ECS Fargate „task”: a `backend` és a `web` konténer, healthcheck, naplózás, titkok az SSM-ből, képek EFS-en |
+| `ecs/task-definition.json` | ECS Fargate „task”: a `backend` és a `web` konténer, beállítások, healthcheck, naplózás a CloudWatch-ba |
 | `ecs/service.json` | ECS szolgáltatás: 2 példány, rolling deploy, automatikus visszaállás, load balancer |
 | `ecs/target-group.json` | az Application Load Balancer célcsoportja, egészség-ellenőrzés a `/api/health`-en |
-| `cloudwatch/alarm-5xx.json`, `alarm-unhealthy.json` | riasztások szerverhibákra és nem egészséges példányra |
+| `cloudwatch/alarm-5xx.json` | riasztás, ha sok a szerverhiba (5xx) |
 
 ## A) AWS Lightsail (egy VPS – a helyi `deploy/vps` bemutató „éles” párja)
 
@@ -39,41 +39,36 @@ aws ecs create-cluster --cluster-name one-more-slice
 aws logs create-log-group --log-group-name /ecs/one-more-slice
 aws logs put-retention-policy --log-group-name /ecs/one-more-slice --retention-in-days 14
 
-# 2. Titkok (nem a task definitionbe írjuk őket, hanem az SSM Parameter Store-ba, titkosítva)
-aws ssm put-parameter --name /one-more-slice/APP_KEY --type SecureString --value "base64:..."
-aws ssm put-parameter --name /one-more-slice/DB_PASSWORD --type SecureString --value "..."
-aws ssm put-parameter --name /one-more-slice/STRIPE_SECRET --type SecureString --value "sk_test_..."
-
-# 3. Task definition regisztrálása
+# 2. Task definition regisztrálása (előtte: az IDE-A-… helyőrzők cseréje a saját értékekre;
+#    élesben a titkokat az AWS titoktárolójában tartanánk, nem a fájlban)
 aws ecs register-task-definition --cli-input-json file://ecs/task-definition.json
 
-# 4. Load balancer célcsoport (egészség-ellenőrzés: /api/health)
+# 3. Load balancer célcsoport (egészség-ellenőrzés: /api/health)
 aws elbv2 create-target-group --cli-input-json file://ecs/target-group.json
 
-# 5. Adatbázis-migráció EGYSZER, külön taskként (ugyanaz az elv, mint a helyi rolling bemutatóban)
+# 4. Adatbázis-migráció EGYSZER, külön taskként (ugyanaz az elv, mint a helyi rolling bemutatóban)
 aws ecs run-task --cluster one-more-slice --launch-type FARGATE --task-definition one-more-slice \
   --network-configuration "awsvpcConfiguration={subnets=[subnet-0aaaaaaaaaaaaaaaa],securityGroups=[sg-0cccccccccccccccc],assignPublicIp=ENABLED}" \
   --overrides '{"containerOverrides":[{"name":"backend","command":["true"],"environment":[{"name":"RUN_MIGRATIONS","value":"true"}]}]}'
 
-# 6. Szolgáltatás indítása (2 példány a load balancer mögött)
+# 5. Szolgáltatás indítása (2 példány a load balancer mögött)
 aws ecs create-service --cli-input-json file://ecs/service.json
 
-# 7. Deploy (rolling): új task definition revízió, majd a szolgáltatás frissítése
+# 6. Deploy (rolling): új task definition revízió, majd a szolgáltatás frissítése
 aws ecs update-service --cluster one-more-slice --service one-more-slice --task-definition one-more-slice:2
 #    minimumHealthyPercent 100 / maximumPercent 200: előbb elindulnak az újak, csak utána állnak le a régiek.
 #    deploymentCircuitBreaker: ha az új példányok nem lesznek egészségesek, az ECS magától visszaáll.
 
-# 8. Kézi visszaállás: az előző revízióra
+# 7. Kézi visszaállás: az előző revízióra
 aws ecs update-service --cluster one-more-slice --service one-more-slice --task-definition one-more-slice:1
 ```
 
-## C) CloudWatch riasztások
+## C) CloudWatch riasztás
 
 ```bash
 aws sns create-topic --name one-more-slice-riasztasok
 aws sns subscribe --topic-arn arn:aws:sns:eu-central-1:123456789012:one-more-slice-riasztasok --protocol email --notification-endpoint te@example.com
 aws cloudwatch put-metric-alarm --cli-input-json file://cloudwatch/alarm-5xx.json
-aws cloudwatch put-metric-alarm --cli-input-json file://cloudwatch/alarm-unhealthy.json
 ```
 
 ## Költségkontroll – mindig ezzel kezdd!
