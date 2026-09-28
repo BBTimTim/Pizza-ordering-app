@@ -1,0 +1,2 @@
+# A konténerben futó shell scripteknek LF sorvége kell (Windows alatt is)
+*.sh text eol=lf
