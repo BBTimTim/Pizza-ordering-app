@@ -1,0 +1,79 @@
+# Éles futtatás egy AWS Lightsail szerveren – a CI (GitHub Actions) által a GHCR-be feltöltött image-ekkel.
+# A szerveren (/opt/one-more-slice):
+#   docker login ghcr.io                       # egyszer; privát repónál GitHub tokennel
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+# A titkok a mellette lévő .env fájlban vannak (chmod 600), nem a repóban.
+
+name: one-more-slice
+
+x-cloudwatch-logs: &cloudwatch-logs
+  # A konténerek naplói közvetlenül az AWS CloudWatch Logs-ba mennek (a szerverhez IAM jogosultság kell)
+  driver: awslogs
+  options:
+    awslogs-region: eu-central-1
+    awslogs-group: /one-more-slice/prod
+    awslogs-create-group: "true"
+
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks: [backend-net]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      retries: 10
+    logging: *cloudwatch-logs
+
+  backend:
+    image: ghcr.io/bbtimtim/one-more-slice-backend:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: https://${DOMAIN}
+      FRONTEND_URL: https://${DOMAIN}
+      APP_VERSION: ${IMAGE_TAG:-latest}
+      LOG_CHANNEL: stderr
+      DB_HOST: db
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      STRIPE_SECRET: ${STRIPE_SECRET}
+    volumes:
+      - uploads:/var/www/html/public/uploads
+      - storage:/var/www/html/storage
+    networks: [backend-net, frontend-net]
+    logging: *cloudwatch-logs
+
+  web:
+    image: ghcr.io/bbtimtim/one-more-slice-web:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on: [backend]
+    ports:
+      - "80:80"
+    volumes:
+      - uploads:/var/www/uploads:ro
+    networks: [frontend-net]
+    logging: *cloudwatch-logs
+
+volumes:
+  db-data:
+  uploads:
+  storage:
+
+networks:
+  frontend-net:
+  backend-net:

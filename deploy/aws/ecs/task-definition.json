@@ -1,0 +1,93 @@
+{
+  "family": "one-more-slice",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": { "operatingSystemFamily": "LINUX", "cpuArchitecture": "X86_64" },
+  "executionRoleArn": "arn:aws:iam::123456789012:role/one-more-slice-ecs-execution",
+  "taskRoleArn": "arn:aws:iam::123456789012:role/one-more-slice-ecs-task",
+  "volumes": [
+    {
+      "name": "uploads",
+      "efsVolumeConfiguration": {
+        "fileSystemId": "fs-0123456789abcdef0",
+        "rootDirectory": "/uploads",
+        "transitEncryption": "ENABLED"
+      }
+    }
+  ],
+  "containerDefinitions": [
+    {
+      "name": "backend",
+      "image": "ghcr.io/bbtimtim/one-more-slice-backend:latest",
+      "repositoryCredentials": {
+        "credentialsParameter": "arn:aws:secretsmanager:eu-central-1:123456789012:secret:one-more-slice/ghcr-token"
+      },
+      "essential": true,
+      "portMappings": [{ "containerPort": 9000, "protocol": "tcp" }],
+      "environment": [
+        { "name": "APP_ENV", "value": "production" },
+        { "name": "APP_DEBUG", "value": "false" },
+        { "name": "APP_URL", "value": "https://onemoreslice.example.com" },
+        { "name": "FRONTEND_URL", "value": "https://onemoreslice.example.com" },
+        { "name": "LOG_CHANNEL", "value": "stderr" },
+        { "name": "RUN_MIGRATIONS", "value": "false" },
+        { "name": "DB_HOST", "value": "one-more-slice.abcdefghijkl.eu-central-1.rds.amazonaws.com" },
+        { "name": "DB_DATABASE", "value": "onemoreslice" },
+        { "name": "DB_USERNAME", "value": "onemoreslice" }
+      ],
+      "secrets": [
+        { "name": "APP_KEY", "valueFrom": "arn:aws:ssm:eu-central-1:123456789012:parameter/one-more-slice/APP_KEY" },
+        { "name": "DB_PASSWORD", "valueFrom": "arn:aws:ssm:eu-central-1:123456789012:parameter/one-more-slice/DB_PASSWORD" },
+        { "name": "STRIPE_SECRET", "valueFrom": "arn:aws:ssm:eu-central-1:123456789012:parameter/one-more-slice/STRIPE_SECRET" }
+      ],
+      "mountPoints": [{ "sourceVolume": "uploads", "containerPath": "/var/www/html/public/uploads" }],
+      "stopTimeout": 20,
+      "healthCheck": {
+        "command": ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 20
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/one-more-slice",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    },
+    {
+      "name": "web",
+      "image": "ghcr.io/bbtimtim/one-more-slice-web:latest",
+      "repositoryCredentials": {
+        "credentialsParameter": "arn:aws:secretsmanager:eu-central-1:123456789012:secret:one-more-slice/ghcr-token"
+      },
+      "essential": true,
+      "portMappings": [{ "containerPort": 80, "protocol": "tcp" }],
+      "environment": [
+        { "name": "BACKEND_HOST", "value": "127.0.0.1" }
+      ],
+      "mountPoints": [{ "sourceVolume": "uploads", "containerPath": "/var/www/uploads", "readOnly": true }],
+      "dependsOn": [{ "containerName": "backend", "condition": "HEALTHY" }],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/health || exit 1"],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 30
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/one-more-slice",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "web"
+        }
+      }
+    }
+  ]
+}
