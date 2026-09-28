@@ -167,6 +167,14 @@ class OrderTest extends TestCase
             ->assertJsonPath('data.0.user_id', $bob->id);
     }
 
+    public function test_validation_messages_are_in_hungarian(): void
+    {
+        $this->postJson('/api/checkout', ['email' => 'nem-email'])
+            ->assertStatus(422)
+            ->assertJsonPath('errors.email.0', 'A(z) e-mail-cím mezőnek érvényes e-mail-címnek kell lennie.')
+            ->assertJsonPath('errors.city.0', 'A(z) város mező kitöltése kötelező.');
+    }
+
     public function test_health_endpoint_reports_ok(): void
     {
         config(['app.version' => 'v2']);
