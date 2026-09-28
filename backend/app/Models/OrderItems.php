@@ -10,14 +10,21 @@ class OrderItems extends Model
     use HasFactory;
 
     protected $fillable = [
-            'name',
-            'price',
-            'quantity',
-            'order_id',
-            'product_id',
+        'name',
+        'price',
+        'quantity',
+        'order_id',
+        'product_id',
+        'size_id',
+        'size_name',
+        'toppings',
     ];
 
-        public function order()
+    protected $casts = [
+        'toppings' => 'array',
+    ];
+
+    public function order()
     {
         return $this->belongsTo(Order::class);
     }

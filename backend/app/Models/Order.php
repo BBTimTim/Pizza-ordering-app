@@ -10,30 +10,34 @@ class Order extends Model
     use HasFactory;
 
     protected $fillable = [
-            'name',
-            'email',
-            'price',
-            'grand_total',
-            'sub_total',
-            'user_id',
-            'status',
-            'delivery_charges',
-            'zip',
-            'address',
-            'phone',
-            'city',
-            'county',
-            'payment_status',
-            'payment_method',
+        'name',
+        'email',
+        'price',
+        'grand_total',
+        'sub_total',
+        'user_id',
+        'status',
+        'delivery_charges',
+        'zip',
+        'address',
+        'phone',
+        'city',
+        'county',
+        'payment_status',
+        'payment_method',
+        'payment_intent_id',
     ];
 
+    protected $hidden = [
+        'payment_intent_id',
+    ];
 
-public function user()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-public function items()
+    public function items()
     {
         return $this->hasMany(OrderItems::class);
     }

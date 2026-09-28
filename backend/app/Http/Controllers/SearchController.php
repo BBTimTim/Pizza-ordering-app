@@ -12,7 +12,7 @@ class SearchController extends Controller
     {
 
         $query = Product::query();
-      
+
         if ($request->search) {
             $query->where('name', 'like', "%{$request->search}%")
                 ->orwhere('description', 'like', "%{$request->search}%");
@@ -20,8 +20,9 @@ class SearchController extends Controller
         try {
 
             $products = $query->latest()->paginate(8);
+
             return response()->json([
-                'data' => $products
+                'data' => $products,
             ], 200);
         } catch (Exception $e) {
             return response()->json([

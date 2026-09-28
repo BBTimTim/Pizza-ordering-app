@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
 import {
@@ -16,6 +16,7 @@ import Errors from "../common/Errors";
 import { GrCaretPrevious } from "react-icons/gr";
 import { GrCaretNext } from "react-icons/gr";
 import NoResult from "./NoResult";
+import Modal from "../common/Modal";
 
 const { img_url } = config;
 
@@ -67,34 +68,39 @@ export default function Products() {
   const cart = useSelector((state) => state.cart);
   const cartItems = cart.items;
 
-  const handleAddToCart = (product) => {
-    const selectedSize = selectedSizes[product.id];
-    const selectedToppingIds = selectedToppings[product.id] || [];
+  // Ha a termék már a kosárban van, előbb megerősítést kérünk (saját modallal, nem window.confirm-mel)
+  const [pendingProduct, setPendingProduct] = useState(null);
 
-    const alreadyInCart = cartItems.some((item) => item.id === product.id);
-
-    if (alreadyInCart) {
-      const confirmed = window.confirm(
-        "Ez a termék már a kosárban van. Biztosan hozzáadod még egyszer?",
-      );
-
-      if (!confirmed) return;
-    }
-
+  const addToCart = (product) => {
     dispatch(
       addItemToCart({
         ...product,
-        selectedSize,
-        selectedToppings: selectedToppingIds,
+        selectedSize: selectedSizes[product.id],
+        selectedToppings: selectedToppings[product.id] || [],
         sizes: sizes?.data || [],
         toppings: toppings?.data || [],
       }),
     );
 
-    setTimeout(() => {
-      setSuccess("Kosárba helyezve!");
-      handleConfirmationOpen();
-    }, 1000);
+    setSuccess("Kosárba helyezve!");
+    handleConfirmationOpen();
+  };
+
+  const handleAddToCart = (product) => {
+    const alreadyInCart = cartItems.some((item) => item.id === product.id);
+
+    if (alreadyInCart) {
+      setPendingProduct(product);
+      return;
+    }
+
+    addToCart(product);
+  };
+
+  const handleConfirmDuplicate = () => {
+    const product = pendingProduct;
+    setPendingProduct(null);
+    addToCart(product);
   };
 
   const [sort, setSort] = useState("");
@@ -118,6 +124,15 @@ export default function Products() {
 
   return (
     <>
+      {pendingProduct && (
+        <Modal
+          onConfirm={handleConfirmDuplicate}
+          onCancel={() => setPendingProduct(null)}
+          confirmLabel="Hozzáadom"
+        >
+          Ez a termék már a kosárban van. Biztosan hozzáadod még egyszer?
+        </Modal>
+      )}
       {isLoading && <Loader />}
       {error && <Errors errors={error?.data?.errors} />}
 

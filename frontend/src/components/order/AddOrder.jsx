@@ -1,31 +1,32 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "react-international-phone/style.css";
 import { PhoneInput } from "react-international-phone";
-import { useAddOrderMutation } from "../redux/order/orderSlice";
+import { useCheckoutMutation } from "../redux/order/orderSlice";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { clearCart } from "../redux/cart/cartSlice";
-import { sendOrderConfirmation } from "../order/OrderConfirmation";
+import { selectCurrentUser } from "../redux/auth/authSlice";
+import StripePayment from "./StripePayment";
+import { sendOrderConfirmation } from "./OrderConfirmation";
+import { formatPrice } from "./orderStatus";
 
 export default function AddOrder() {
 
   const cart = useSelector((state) => state.cart);
   const cartItems = cart.items;
+  const user = useSelector(selectCurrentUser);
 
   const [order, setOrder] = useState({
-    name: "",
-    email: "",
+    name: user?.name || "",
+    email: user?.email || "",
     zip: "",
     address: "",
     phone: "+36",
     city: "",
     county: "",
-    grand_total: 0,
-    sub_total: 0,
-    delivery_charges: 0,
   });
 
   const navigate = useNavigate();
@@ -36,49 +37,63 @@ export default function AddOrder() {
   };
 
   const [success, setSuccess] = useState(null);
+  // A szerver által létrehozott, fizetésre váró rendelés (a végösszeget is a szerver számolta)
+  const [payment, setPayment] = useState(null);
 
-  const [AddOrder, { isLoading, error }] = useAddOrderMutation();
+  const [checkout, { isLoading, error }] = useCheckoutMutation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-     const createdOrder = await AddOrder({
+      // Árat nem küldünk: csak azt, mit és hány darabot kér a vásárló
+      const result = await checkout({
         ...order,
-        sub_total: cart.totalAmount,
-        delivery_charges: cart.shippingCharge,
-        grand_total: cart.grandTotal,
-        items: cartItems,
-        status: "pending",
-        payment_method: "card",
-        payment_status: "paid",
+        items: cartItems.map((item) => ({
+          product_id: item.id,
+          size_id: item.selectedSize ? Number(item.selectedSize) : null,
+          topping_ids: item.selectedToppings.map(Number),
+          quantity: item.quantity,
+        })),
       }).unwrap();
 
-      await sendOrderConfirmation(createdOrder.data);
-
-      dispatch(clearCart());
-      
-      setOrder({
-        name: "",
-        email: "",
-        zip: "",
-        address: "",
-        phone: "+36",
-        city: "",
-        county: "",
-        grand_total: 0,
-        sub_total: 0,
-        delivery_charges: 0,
+      setPayment({
+        orderId: result.data.id,
+        clientSecret: result.client_secret,
+        amount: result.data.grand_total,
       });
-
-      setSuccess("Sikeres Rendelés");
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 2000);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
+
+  // A visszaigazolás a szerver által kiszámolt, már kifizetett rendelés adataiból megy ki (EmailJS)
+  const handlePaid = async (paidOrder) => {
+    const emailSent = await sendOrderConfirmation(paidOrder);
+    dispatch(clearCart());
+    setPayment(null);
+    setSuccess(
+      emailSent
+        ? "Sikeres rendelés! A visszaigazolást e-mailben elküldtük."
+        : "Sikeres rendelés! A visszaigazoló e-mail küldése nem sikerült, a rendelést a profilodban találod.",
+    );
+    setTimeout(() => {
+      navigate(user ? "/user/profile" : "/", { replace: true });
+    }, 2500);
+  };
+
+  if (success) {
+    return (
+      <div className="flex justify-center m-5">
+        <div
+          className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
+          role="alert"
+        >
+          <p className="text-green-900 font-bold">{success}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -87,20 +102,25 @@ export default function AddOrder() {
       </h2>
       {isLoading && <Loader />}
 
-      {success && (
-        <div className="flex justify-center m-5">
-          <div
-            className="text-green-900 font-medium bg-green-200 rounded-full px-5 py-2"
-            role="alert"
-          >
-            <p className="text-green-900 font-bold">{success}</p>
-          </div>
-        </div>
-      )}
-
       {error && <Errors errors={error?.data?.errors} />}
 
-  <div>
+      {payment ? (
+        <div className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto">
+          <StripePayment
+            clientSecret={payment.clientSecret}
+            orderId={payment.orderId}
+            amount={payment.amount}
+            onPaid={handlePaid}
+          />
+          <button
+            type="button"
+            onClick={() => setPayment(null)}
+            className="w-full mt-4 text-sm underline text-slate-600"
+          >
+            Vissza a szállítási adatokhoz
+          </button>
+        </div>
+      ) : (
   <form  onSubmit={handleSubmit} className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto">
   <div className="mb-4">
     <label
@@ -234,152 +254,45 @@ export default function AddOrder() {
       <span className="font-bold">{cart.grandTotal.toFixed(0)} Ft</span>
     </div>
   </div>
- <section className="border border-slate-300 rounded-2xl p-6 md:p-8">
-  <h2 className="text-xl font-bold mb-6">
-    Bankkártyás fizetés
-  </h2>
-  <div className="flex gap-4 mb-6">
-    <img
-      src="https://readymadeui.com/images/visa.webp"
-      className="w-16"
-      alt="Visa"
-    />
-
-    <img
-      src="https://readymadeui.com/images/american-express.webp"
-      className="w-16"
-      alt="American Express"
-    />
-
-    <img
-      src="https://readymadeui.com/images/master.webp"
-      className="w-16"
-      alt="Mastercard"
-    />
-  </div>
-
-  <div className="space-y-5">
-    <div>
-      <label
-        htmlFor="cardholder-name"
-        className="block text-sm font-medium text-slate-700 mb-2"
-      >
-        Kártyatulajdonos neve
-      </label>
-
-      <input
-        type="text"
-        id="cardholder-name"
-        name="cardholder-name"
-        placeholder="Kovács Júlia"
-        required
-        className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-      />
-    </div>
-    <div>
-      <label
-        htmlFor="card-number"
-        className="block text-sm font-medium text-slate-700 mb-2"
-      >
-        Kártya száma
-      </label>
-
-      <input
-        type="text"
-        id="card-number"
-        name="card-number"
-        placeholder="1234 5678 9012 3456"
-        maxLength="19"
-        required
-        className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-      />
-    </div>
-    <div className="grid grid-cols-2 gap-4">
-
-      <div>
+      <div className="flex items-start gap-2">
+        <input
+          id="terms"
+          type="checkbox"
+          required
+          className="mt-1"
+        />
+  
         <label
-          htmlFor="expiry-date"
-          className="block text-sm font-medium text-slate-700 mb-2"
+          htmlFor="terms"
+          className="text-sm text-slate-700"
         >
-          Lejárat dátuma
+          Elfogadom a {""}
+          <a
+            href="/aszf"
+            className="underline font-medium text-blue-700"
+          >
+            Felhasználási feltételeket {""}
+          </a>
+          és az {""}
+          <a
+            href="/privacy"
+            className="underline font-medium text-blue-700"
+          >
+            Adatvédelmi szabályzatot
+          </a>
+          .
         </label>
-
-        <input
-          type="text"
-          id="expiry-date"
-          name="expiry-date"
-          placeholder="MM/YY"
-          maxLength="5"
-          required
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-        />
       </div>
-
-      <div>
-        <label
-          htmlFor="cvv"
-          className="block text-sm font-medium text-slate-700 mb-2"
-        > CVV</label>
-        <input
-          type="text"
-          id="cvv"
-          name="cvv"
-          placeholder="123"
-          maxLength="4"
-          required
-          className="w-full rounded-lg border border-slate-300 px-4 py-3 outline-none focus:border-blue-500"
-        />
-      </div>
-    </div>
-    <div className="flex items-start gap-2">
-      <input
-        id="terms"
-        type="checkbox"
-        required
-        className="mt-1"
-      />
-
-      <label
-        htmlFor="terms"
-        className="text-sm text-slate-700"
-      >
-        Elfogadom a {""}
-        <a
-          href="/aszf"
-          className="underline font-medium text-blue-700"
-        >
-          Felhasználási feltételeket {""}
-        </a>
-        és az {""}
-        <a
-          href="/privacy"
-          className="underline font-medium text-blue-700"
-        >
-          Adatvédelmi szabályzatot
-        </a>
-        .
-      </label>
-    </div>
 
     <button
       type="submit"
-      disabled={isLoading}
-      className="w-full rounded-lg bg-blue-600 py-3 px-4 text-white font-bold hover:bg-blue-700 disabled:opacity-50"
+      disabled={isLoading || cartItems.length === 0}
+      className="w-full mt-6 rounded-lg bg-blue-600 py-3 px-4 text-white font-bold hover:bg-blue-700 disabled:opacity-50"
     >
-      {isLoading
-        ? "Feldolgozás..." 
-        : `Fizetés ${cart.grandTotal.toFixed(0)} Ft`}
+      {isLoading ? "Feldolgozás..." : `Tovább a fizetéshez (${formatPrice(cart.grandTotal)})`}
     </button>
-    <div className="text-center text-sm text-slate-500 pt-2">
-      Fizetési adatai biztonságosan, titkosítva kerülnek
-      feldolgozásra. Bankkártyaadatait nem tároljuk
-      szervereinken.
-    </div>
-
-  </div>
-</section>
 </form>
+      )}
     </div>
-        </div>
   );
 }

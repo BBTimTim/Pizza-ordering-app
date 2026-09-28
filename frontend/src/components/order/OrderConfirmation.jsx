@@ -1,4 +1,3 @@
-import React from "react";
 import emailjs from "@emailjs/browser";
 
 export const sendOrderConfirmation = (order) => {
@@ -15,7 +14,12 @@ export const sendOrderConfirmation = (order) => {
         total: order.grand_total,
 
          orders: order.items.map((item) => ({
-            name: item.name,
+            // A méret és a feltétek a névben jelennek meg, így a sablon változtatás nélkül mutatja őket
+            name: [
+              item.name,
+              item.size_name && `(${item.size_name})`,
+              item.toppings?.length && `+ ${item.toppings.map((t) => t.name).join(", ")}`,
+            ].filter(Boolean).join(" "),
             quantity: item.quantity,
             price: item.price,
         })),
@@ -26,11 +30,11 @@ export const sendOrderConfirmation = (order) => {
       publicKey: public_key,
     })
     .then(
-      (response) => {
-        console.log("Email elküldve!", response.status, response.text);
-      },
+      () => true,
       (error) => {
-        console.log("Hiba történt...", error);
+        // Az EmailJS a hiba okát szövegként adja vissza (pl. nem engedélyezett domain, elfogyott keret)
+        console.error("EmailJS hiba:", error?.status, error?.text);
+        return false;
       },
     );
 };

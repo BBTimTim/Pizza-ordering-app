@@ -1,0 +1,15 @@
+.git
+.github
+.claude
+docs
+**/.env
+**/.env.*
+**/node_modules
+frontend/dist
+backend/vendor
+backend/storage/logs/*
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/bootstrap/cache/*.php
+backend/tests

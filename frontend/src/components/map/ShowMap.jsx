@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import {APIProvider, Map, Marker} from '@vis.gl/react-google-maps';
 
 export default function ShowMap() {

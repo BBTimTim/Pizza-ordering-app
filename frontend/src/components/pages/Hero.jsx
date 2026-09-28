@@ -1,4 +1,3 @@
-import React from "react";
 import Heart from "../../assets/hero/heart.png";
 import Nutella from "../../assets/hero/nutella.png";
 import Piknic from "../../assets/hero/piknic.jpg";

@@ -11,11 +11,13 @@ A rendszer fő funkciói:
 - látogató és bejelentkezett felhasználói szerepkörök kezelése
 - terméklista és keresés
 - kiemelt termékek megjelenítése
-- kosár és rendelés leadás
-- profil és jelszó-visszaállítás
+- kosár és rendelés leadás, szerveroldali árszámítással
+- bankkártyás fizetés Stripe teszt módban
+- rendelés-visszaigazoló e-mail összesítővel (EmailJS)
+- profil, rendelési előzmények és jelszó-visszaállítás
 - admin termékkezelés (hozzáadás, szerkesztés, törlés)
 - admin méret- és topping-kezelés
-- rendelés- és felhasználói adatok kezelése
+- admin rendeléskezelés (lista, szűrés, státuszváltás)
 
 ### 1.3 Főbb modulok
 - Frontend: React + Vite + Redux Toolkit
@@ -29,8 +31,8 @@ A rendszer fő funkciói:
 
 | Szerepkör | Leírás | Jogosultságok |
 | --- | --- | --- |
-| Guest | nem bejelentkezett látogató | publikus termékek és regisztráció, bejelentkezés, kosár megtekintése |
-| User | bejelentkezett vásárló | termékek, kosár, profil, rendelés leadása | - (jelenleg még fejlesztés alatt)
+| Guest | nem bejelentkezett látogató | publikus termékek, regisztráció, bejelentkezés, kosár, rendelés leadása vendégként |
+| User | bejelentkezett vásárló | termékek, kosár, profil, rendelés leadása, saját rendelések megtekintése |
 | Admin | adminisztrátor | teljes termék-, méret-, topping- és rendeléskezelés |
 
 ---
@@ -48,7 +50,7 @@ A rendszer fő funkciói:
 | State management | Redux Toolkit |
 | API kommunikáció | RTK Query |
 | UI könyvtárak | Tailwind CSS, DaisyUI |
-| További bibliotékok | React Icons, Google Maps, EmailJS |
+| További bibliotékok | React Icons, Google Maps, EmailJS, Stripe (`@stripe/react-stripe-js`) |
 
 A frontend fő feladata az ügyféloldali navigáció, terméklista megjelenítése, kosárkezelés, bejelentkezés és rendelésleadás.
 
@@ -57,13 +59,15 @@ A frontend fő feladata az ügyféloldali navigáció, terméklista megjelenít�
 | Elem | Technológia |
 | --- | --- |
 | Framework | Laravel 10 |
-| Nyelv | PHP 8.1 |
+| Nyelv | PHP 8.1+ (a Docker image PHP 8.2-t használ) |
 | Autentikáció | Laravel Sanctum |
+| Fizetés | Stripe PHP SDK (`stripe/stripe-php`), teszt mód |
 | Architektúra | monolitikus Laravel alkalmazás |
 | ORM | Eloquent ORM |
 | Validáció | Laravel request validáció |
 | Middleware | StatusMiddleware, autentikációs és route middleware |
-| Email / reset | Laravel Password reset és email verification |
+| Email / reset | Laravel Password reset és email verification (a vásárlói leveleket a frontend küldi EmailJS-szel) |
+| Rate limit | `throttle` middleware a bejelentkezésen, regisztráción, jelszó-visszaállításon és a fizetésen |
 
 A backend monolitikus megoldás: központi API, Eloquent modellek és kontrollerek kezelik a logikát.
 
@@ -77,13 +81,32 @@ A backend monolitikus megoldás: központi API, Eloquent modellek és kontroller
 | Migrációs stratégia | Laravel migrációk |
 
 ### 2.4 Infrastruktúra
-A projekt lokális fejlesztésre optimalizált környezetben működik:
+A projekt két módon futtatható:
+
+**Docker Compose (ajánlott, `docker-compose.yml`):**
+
+| Szolgáltatás | Image / build | Feladat | Cím |
+| --- | --- | --- | --- |
+| `web` | `docker/web/Dockerfile` (node build → nginx) | a React build kiszolgálása, reverse proxy az `/api` felé, `/uploads` képek | `http://localhost:8080` |
+| `backend` | `docker/backend/Dockerfile` (composer → php-fpm) | Laravel API; induláskor `migrate` és `db:seed` | csak belső hálózaton (9000) |
+| `db` | `mysql:8.4` | adatbázis, `db-data` volume | `localhost:3307` |
+| `mailpit` | `axllent/mailpit` | levélfogó a regisztrációs és jelszó-visszaállító levelekhez | `http://localhost:8025` |
+| `phpmyadmin` | `phpmyadmin:5` | adatbázis-kezelő felület | `http://localhost:8081` |
+
+- az nginx és a frontend ugyanazon a címen éri el az API-t, ezért nincs CORS-probléma
+- két hálózat: `frontend-net` (web ↔ backend) és `backend-net` (backend ↔ db); a `web` nem látja közvetlenül az adatbázist
+- volume-ok: `db-data` (adatbázis), `uploads` (termékképek, a backend és az nginx közösen használja), `storage` (Laravel storage, automatikusan generált `APP_KEY`)
+
+**Docker nélkül (XAMPP):**
 
 - frontend: Vite dev server (`localhost:5173`)
 - backend: Laravel artisan dev szerver (`localhost:8000`)
+
+Egyéb:
+
 - verziókezelés: Git
 - CI/CD: jelenleg nincs beüzemeltetett automatizált pipeline
-- logging: Laravel logfájlok a `storage/logs` könyvtárban
+- logging: Dockerben `docker compose logs`, XAMPP alatt a `storage/logs` könyvtár
 
 ---
 
@@ -94,7 +117,7 @@ A projekt lokális fejlesztésre optimalizált környezetben működik:
 - Frontend (React): felhasználói felület, API hívások, állapotmenedzsment
 - Backend API (Laravel): üzleti logika, validáció, jogosultságkezelés
 - Adatbázis: entitások és kapcsolatok tárolása
-- Külső szolgáltatások: email küldés, jelszó-visszaállítás, Google Maps integráció, EmailJS
+- Külső szolgáltatások: Stripe (bankkártyás fizetés, teszt mód), EmailJS (kapcsolati űrlap és rendelés-visszaigazolás), Google Maps, Laravel levelek (regisztráció-megerősítés, jelszó-visszaállítás)
 
 ### 3.2 Kommunikációs modell
 A frontend és backend között REST API-alapú JSON kommunikáció történik. A frontend a Redux Toolkit Query segítségével hívja meg az endpointokat.
@@ -124,7 +147,9 @@ A frontend és backend között REST API-alapú JSON kommunikáció történik. 
 ### 3.4 Főbb backend komponensek
 
 - `ProductController`: terméklistázás, előnézet, létrehozás, módosítás, törlés
-- `OrderController`: rendelés létrehozása és karbantartása
+- `OrderController`: checkout, fizetés-visszaigazolás, saját rendelések, admin rendeléslista és státuszváltás
+- `App\Services\OrderPricing`: a rendelés árának kiszámítása az adatbázis árai alapján (a kliens által küldött árat figyelmen kívül hagyja)
+- `App\Services\PaymentGateway` (interfész) és `StripePaymentGateway`: Stripe PaymentIntent létrehozása és ellenőrzése; tesztekben a `tests/Fakes/FakePaymentGateway` helyettesíti
 - `GuestController`: regisztráció, bejelentkezés, jelszóemlékeztető, jelszó-visszaállítás
 - `SearchController`: termékkeresés
 - `StatusMiddleware`: admin jogosultság ellenőrzése
@@ -142,16 +167,25 @@ A frontend és backend között REST API-alapú JSON kommunikáció történik. 
 6. A React kliens a Redux store-ban tárolja az adatokat.
 
 ### 4.2 Rendelés leadás folyamata
-1. A felhasználó kiválaszt termékeket és beteszi a kosárba.
-2. A frontend elküldi a rendelés payloadet a `/api/addorder` végpontra.
-3. A backend validálja a mezőket.
-4. A `Order` rekord létrejön.
-5. A rendelt tételek elkülönült `order_items` rekordokként kerülnek mentésre.
-6. A backend válaszként a létrehozott rendelést küldi vissza.
+1. A felhasználó termékeket tesz a kosárba méret- és feltétválasztással. A kosár kliensoldali (`cartSlice.js`, `localStorage`), az ott látott ár csak tájékoztató jellegű.
+2. A szállítási adatok kitöltése után a frontend a `POST /api/checkout` végpontra küldi a vásárló adatait és a tételeket. Árat nem küld, csak `product_id`, `size_id`, `topping_ids` és `quantity` értékeket.
+3. A backend validál, majd az `OrderPricing` az adatbázisból számolja az árat:
+   - tételár = `round(product.price * size.price_multiplier) + a feltétek árainak összege`
+   - szállítás: `1200 Ft`, `15000 Ft` részösszegtől ingyenes (`config/shop.php`)
+   - inaktív (`block`) termék nem rendelhető (422)
+4. Létrejön az `Order` (`payment_status: not_paid`, bejelentkezett vásárlónál a `user_id`-vel) és az `order_items` tételek. A név, a méret és a feltétek a rendelés pillanatában rögzülnek.
+5. A backend Stripe PaymentIntentet hoz létre, és visszaadja a `client_secret`-et.
+6. A frontend a Stripe Payment Elementtel fizettet. A kártyaadatok közvetlenül a Stripe-hoz mennek, nem a saját szerverhez.
+7. Sikeres fizetés után a frontend a `POST /api/orders/{id}/confirm-payment` végpontot hívja. A backend a Stripe-tól ellenőrzi a fizetést (státusz, összeg, rendelésazonosító), és csak ezután állítja `paid`-re.
+8. A frontend a visszaigazolt rendelés adataiból EmailJS-szel elküldi a vásárlónak az összesítő e-mailt, majd üríti a kosarat.
+9. Az admin a rendelést a `pending → out_for_delivery → delivered` (vagy `cancelled`) státuszokon viszi végig. A vásárló a profiljában látja a változást.
 
 ### 4.3 Hibakezelési folyamatok
 - Laravel validációs hiba esetén 422-es válaszkód és hibaüzenetek érkeznek.
 - Jogosultsági hiba esetén a `StatusMiddleware` 403-as választ ad.
+- Sikertelen vagy még le nem zárt fizetésnél a `confirm-payment` 402-es választ ad, a rendelés `not_paid` marad.
+- Ha a Stripe nem érhető el, a checkout 502-t, ha nincs beállítva a `STRIPE_SECRET`, 503-at ad.
+- Ha az EmailJS-es visszaigazolás nem megy ki, a rendelés sikeres marad, és erről a felület tájékoztatja a vásárlót.
 - Az alkalmazás frontend oldalon `ErrorBoundary` és általános API hiba-kezelés működik.
 
 ---
@@ -187,19 +221,24 @@ A frontend és backend között REST API-alapú JSON kommunikáció történik. 
 - `grand_total`
 - `sub_total`
 - `delivery_charges`
-- `status`
-- `payment_method`
-- `payment_status`
+- `status` (`pending`, `out_for_delivery`, `delivered`, `cancelled`)
+- `payment_method` (`card`)
+- `payment_status` (`paid`, `not_paid`)
+- `payment_intent_id` (Stripe azonosító, egyedi; az API válaszaiban rejtett)
 - `city`, `county`, `zip`, `address`, `phone`
 - `timestamps`
 
 #### `order_items`
 - `id`
-- `order_id`
-- `product_id`
-- `name`
-- `price`
+- `order_id` (a rendelés törlésekor a tételei is törlődnek)
+- `product_id` (nullable; a termék törlésekor `null` lesz, a tétel megmarad)
+- `size_id` (nullable)
+- `name` (a termék neve a rendelés pillanatában)
+- `size_name` (pl. `32 cm`, nullable)
+- `toppings` (JSON: a választott feltétek `id`, `name`, `price` értékei)
+- `price` (egységár, méretszorzóval és feltétekkel)
 - `quantity`
+- `timestamps`
 
 #### `sizes`
 - `id`
@@ -220,6 +259,7 @@ A frontend és backend között REST API-alapú JSON kommunikáció történik. 
 - `User` -> `Order`: egy felhasználóhoz több rendelés tartozhat (`hasMany`)
 - `Order` -> `OrderItems`: egy rendeléshez több rendelési tétel tartozik (`hasMany`)
 - `Product` -> `OrderItems`: egy termékhez több rendelési tétel kapcsolódhat (`hasMany`)
+- `Size` -> `OrderItems`: a rendelési tétel a választott méretre hivatkozik (`size_id`, idegen kulcs)
 - `Cart` -> `CartItem`: egy kosárhoz több kosár elem tartozik
 - `User` -> `Cart`: egy felhasználóhoz egy kosár tartozik
 
@@ -232,7 +272,9 @@ A projektben legfontosabb kulcsmezők:
 - `order_items.id`
 - `order_items.order_id`
 - `order_items.product_id`
+- `order_items.size_id`
 - `users.email` (egyedi index)
+- `orders.payment_intent_id` (egyedi index)
 
 A Laravel Eloquent és az adatbázis migrációk alapján a relációs kulcsok a kapcsolatokhoz szükségesek.
 
@@ -256,7 +298,18 @@ Az API gyökere: `/api`
 | GET | `/api/sizes` | méretek listázása |
 | GET | `/api/toppings` | feltétek listázása |
 | GET | `/api/products-result` | kereséses terméklekérdezés |
-| POST | `/api/addorder` | rendelés létrehozása |
+| POST | `/api/checkout` | rendelés létrehozása szerveroldali árszámítással, Stripe `client_secret` visszaadása |
+| POST | `/api/orders/{id}/confirm-payment` | fizetés ellenőrzése a Stripe-nál, sikeres fizetésnél `paid` státusz |
+| GET | `/api/health` | állapotellenőrzés (adatbázis-kapcsolattal), a Docker healthcheck használja |
+
+A `register`, `login`, `resetpassword`, `forgetpassword` és `checkout` végpontok percenként 10, a `confirm-payment` 20 kérést fogad (`throttle`), efölött 429-es választ adnak.
+
+Bejelentkezett felhasználó (`auth:sanctum`) számára:
+
+| Metódus | Végpont | Leírás |
+| --- | --- | --- |
+| GET | `/api/user` | a bejelentkezett felhasználó adatai |
+| GET | `/api/my-orders` | a saját rendelések tételekkel, a legújabb elöl |
 
 ### 6.2 Adminisztrációs végpontok
 Az alábbi végpontok csak hitelesített admin felhasználó számára elérhetők.
@@ -274,6 +327,9 @@ Az alábbi végpontok csak hitelesített admin felhasználó számára elérhet�
 | POST | `/api/addtoppings` | új topping létrehozása |
 | GET | `/api/toppings` | toppingok lekérdezése |
 | DELETE | `/api/toppings/{id}` | topping törlése |
+| GET | `/api/orders` | rendelések tételekkel, 20-asával lapozva, opcionális `?status=` szűrővel |
+| GET | `/api/orders/{id}` | egy rendelés adatai |
+| POST | `/api/orders/{id}/status` | rendelés státuszának módosítása (`pending`, `out_for_delivery`, `delivered`, `cancelled`) |
 
 ### 6.3 Request/response példák
 
@@ -300,38 +356,69 @@ Response:
 #### Rendelés létrehozása
 Request body:
 
+`POST /api/checkout` – a kliens nem küld árat, csak azt, mit és hány darabot kér. A `user_id`-t a backend a Sanctum tokenből állapítja meg.
+
 ```json
 {
-  "user_id": 1,
   "name": "Kiss Pista",
   "email": "kiss@example.com",
-  "grand_total": 2500,
-  "sub_total": 2200,
-  "delivery_charges": 300,
-  "status": "new",
-  "payment_method": "card",
-  "payment_status": "paid",
+  "phone": "+36701234567",
   "city": "Budapest",
   "zip": "1111",
   "address": "Fő utca 1.",
-  "phone": "+36701234567",
   "items": [
     {
-      "id": 5,
-      "name": "Margherita",
-      "quantity": 2,
-      "price": 1200
+      "product_id": 1,
+      "size_id": 2,
+      "topping_ids": [1],
+      "quantity": 2
     }
   ]
 }
 ```
 
+Response (`201 Created`) – Margherita (2490 Ft), 32 cm-es méret (szorzó: 1,3), Extra sajt feltét (350 Ft): (2490 × 1,3 + 350) × 2 = 7174 Ft, 15000 Ft alatt 1200 Ft szállítással:
+
+```json
+{
+  "success": "Rendelés létrehozva, fizetésre vár.",
+  "data": {
+    "id": 1,
+    "user_id": null,
+    "name": "Kiss Pista",
+    "sub_total": 7174,
+    "delivery_charges": 1200,
+    "grand_total": 8374,
+    "status": "pending",
+    "payment_method": "card",
+    "payment_status": "not_paid",
+    "items": [
+      {
+        "name": "Margherita",
+        "size_name": "32 cm",
+        "toppings": [{ "id": 1, "name": "Extra sajt", "price": 350 }],
+        "price": 3587,
+        "quantity": 2
+      }
+    ]
+  },
+  "client_secret": "pi_..._secret_..."
+}
+```
+
+A frontend a `client_secret`-tel fizettet a Stripe-on keresztül, majd meghívja a `POST /api/orders/1/confirm-payment` végpontot. Sikeres fizetésnél a válasz `200`, benne `"payment_status": "paid"`, különben `402`.
+
 ### 6.4 Hibakódok
 - `200 OK`: sikeres művelet
 - `201 Created`: sikeres létrehozás
+- `401 Unauthorized`: hiányzó vagy érvénytelen token
+- `402 Payment Required`: a fizetés még nem sikerült (`confirm-payment`)
 - `403 Forbidden`: jogosultság hiánya
-- `422 Unprocessable Entity`: validációs hiba
+- `422 Unprocessable Entity`: validációs hiba (pl. nem rendelhető termék)
+- `429 Too Many Requests`: túl sok kérés (`throttle`)
 - `500 Internal Server Error`: szerveroldali kivétel
+- `502 Bad Gateway`: a Stripe nem érhető el a rendelés létrehozásakor
+- `503 Service Unavailable`: nincs beállítva az online fizetés (`STRIPE_SECRET`), vagy a `/api/health` nem éri el az adatbázist
 
 ---
 
@@ -345,13 +432,16 @@ A `StatusMiddleware` ellenőrzi, hogy a felhasználó `admin` státuszú-e. Csak
 
 ### 7.3 Token kezelés
 - token a bejelentkezéskor jön létre
-- a frontend a Redux store-ban tárolja
+- a frontend a Redux store-ban és a `localStorage`-ban tárolja (a `user` objektummal együtt; szerepkör-változás után újra be kell jelentkezni)
 - a request préparáláskor a `apiSlice` automatikusan hozzáadja a headerhez
 
 ### 7.4 Adatvédelem és titkosítás
 - jelszavak a Laravel `Hash` osztállyal kerülnek titkosításra
 - e-mail ellenőrzés támogatott (`MustVerifyEmail`)
 - password reset és email verification rendszerek be vannak kötve
+- bankkártyaadat nem érinti a saját szervert: a Stripe Payment Element közvetlenül a Stripe-nak küldi
+- titkos kulcs (`STRIPE_SECRET`) csak a backend környezeti változójában van; a frontendbe kizárólag publikus (`VITE_`) kulcs kerül
+- a `.env` fájlokat a `.gitignore` és a `.dockerignore` kizárja
 
 ### 7.5 OWASP szemlélet
 A rendszer alapvető OWASP szempontokból:
@@ -360,49 +450,74 @@ A rendszer alapvető OWASP szempontokból:
 - token-alapú autentikáció
 - jogosultsági korlátozás admin route-oknál
 - érzékeny adatokat és hibákat nem közvetlenül „nyers” formában ad vissza
+- a rendelés végösszegét és fizetési státuszát a szerver határozza meg; a kliens által küldött ár és `payment_status` figyelmen kívül marad (manipulált kérésre is a szerver ára érvényes, ezt Feature teszt ellenőrzi)
+- a fizetés sikerességét a backend közvetlenül a Stripe-tól kérdezi le, nem a klienstől fogadja el
+- brute force elleni védelem: `throttle` a hitelesítési és fizetési végpontokon
 
 ---
 
 ## 8. Fejlesztői környezet
 
 ### 8.1 Előfeltételek
-- PHP 8.1+
+Docker futtatáshoz:
+
+- Docker Desktop (Docker Compose v2+)
+- Git
+
+Docker nélküli futtatáshoz:
+
+- PHP 8.1+ (`pdo_mysql`, tesztekhez `pdo_sqlite`)
 - Composer
-- Node.js 18+
+- Node.js 20.19+ vagy 22.12+ (a Vite 8 követelménye)
 - npm
-- MySQL vagy MariaDB
+- MySQL vagy MariaDB (pl. XAMPP)
 - Git
 
 ### 8.2 Környezeti változók
-A Laravel `.env` fájlban kell konfigurálni:
+Három `.env` fájl van, mindegyikhez tartozik egy `.env.example` minta. Titkos értéket soha ne commitolj.
 
-- `DB_CONNECTION`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_DATABASE`
-- `DB_USERNAME`
-- `DB_PASSWORD`
-- `APP_KEY`
-- `APP_URL`
-- `SANCTUM_STATEFUL_DOMAINS` (ha szükséges)
+| Fájl | Mikor kell | Fontosabb változók |
+| --- | --- | --- |
+| gyökér `.env` | Docker Compose | `APP_PORT`, `APP_KEY` (üresen automatikusan generálódik), `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, `DB_ROOT_PASSWORD`, `DB_PORT`, `STRIPE_SECRET`, `VITE_STRIPE_PUBLIC_KEY`, `VITE_GOOGLE_API_KEY`, `VITE_EMAILJS_*` |
+| `backend/.env` | Docker nélkül | `DB_*`, `APP_KEY`, `APP_URL`, `FRONTEND_URL` (az e-mail-megerősítés átirányítási címe), `MAIL_*`, `STRIPE_SECRET` |
+| `frontend/.env` | Docker nélkül (`npm run dev`) | `VITE_API_URL`, `VITE_IMG_URL`, `VITE_STRIPE_PUBLIC_KEY`, `VITE_GOOGLE_API_KEY`, `VITE_EMAILJS_SERVICE_ID`, `VITE_EMAILJS_TEMPLATE_ID`, `VITE_EMAILJS_TEMPLATE_ID2`, `VITE_EMAILJS_PUBLIC_KEY` |
+
+- a `VITE_` előtagú változók a böngészőbe kerülnek, ezért csak publikus érték lehet bennük (a Stripe-nál a `pk_test_...`, soha nem az `sk_test_...`)
+- a `VITE_API_URL` / `VITE_IMG_URL` Dockerben relatív (`/api`, `/uploads`), Docker nélkül alapértelmezésként `http://127.0.0.1:8000/...`
+- a Stripe teszt kulcsai a Stripe Dashboard **Developers → API keys** oldalán érhetők el
 
 ### 8.3 Helyi futtatás
-Backend:
+Dockerrel (ajánlott):
+
+```bash
+cp .env.example .env      # majd a Stripe és EmailJS kulcsok kitöltése
+docker compose up -d --build
+```
+
+- alkalmazás: `http://localhost:8080`
+- phpMyAdmin: `http://localhost:8081` (felhasználó: `DB_USERNAME`, jelszó: `DB_PASSWORD`)
+- Mailpit: `http://localhost:8025`
+- demó fiókok (a seeder üres adatbázisba tölti be, megerősített e-mail-címmel): `admin@onemoreslice.hu` / `Admin123!`, `vasarlo@onemoreslice.hu` / `Vasarlo123!`
+- Stripe tesztkártya: `4242 4242 4242 4242`, bármilyen jövőbeli lejárat és CVC
+- leállítás: `docker compose down`; az adatbázis törlésével együtt: `docker compose down -v`
+
+Docker nélkül – backend:
 
 ```bash
 cd backend
 composer install
 cp .env.example .env
 php artisan key:generate
-php artisan migrate
+php artisan migrate --seed
 php artisan serve
 ```
 
-Frontend:
+Docker nélkül – frontend:
 
 ```bash
 cd frontend
 npm install
+cp .env.example .env
 npm run dev
 ```
 
@@ -414,15 +529,26 @@ cd frontend
 npm run build
 ```
 
-Backend tesztek:
+Backend tesztek (memóriában futó SQLite adatbázison, `phpunit.xml`, így MySQL nélkül is futnak; a Stripe-ot a `FakePaymentGateway` helyettesíti):
 
 ```bash
 cd backend
 php artisan test
+./vendor/bin/pint --test   # kódstílus-ellenőrzés
+```
+
+A `tests/Feature/OrderTest.php` ellenőrzi a szerveroldali árszámítást (manipulált árral is), az ingyenes szállítás határát, az inaktív termék elutasítását, a fizetés-visszaigazolást, a jogosultságokat és a `/api/health` végpontot.
+
+Frontend lint:
+
+```bash
+cd frontend
+npm run lint
 ```
 
 ### 8.5 Debugolási lehetőségek
-- Laravel logok: `backend/storage/logs/laravel.log`
+- Docker: `docker compose ps` (egészségi állapot), `docker compose logs backend --tail=100`
+- Laravel logok Docker nélkül: `backend/storage/logs/laravel.log`
 - frontend konzol: browser devtools
 - `php artisan route:list` a végpontök ellenőrzéséhez
 - `php artisan migrate:fresh --seed` a teljes adatbázis újraépítéséhez
@@ -447,19 +573,27 @@ One-more-slice/
 │   │   │   ├── Controllers/
 │   │   │   └── Middleware/
 │   │   ├── Models/
-│   │   └── Notifications/
-│   ├── config/
+│   │   ├── Notifications/
+│   │   └── Services/          # OrderPricing, PaymentGateway, StripePaymentGateway
+│   ├── config/                # shop.php: szállítási díj, ingyenes szállítás határa
 │   ├── database/
-│   ├── public/
+│   ├── public/uploads/        # feltöltött termékképek
 │   ├── resources/
 │   ├── routes/
 │   ├── storage/
-│   └── tests/
+│   └── tests/                 # Feature tesztek, Fakes/FakePaymentGateway
 ├── frontend/
 │   ├── src/
 │   ├── public/
+│   ├── config.js              # api_url, img_url (VITE_API_URL / VITE_IMG_URL)
 │   ├── package.json
 │   └── vite.config.js
+├── docker/
+│   ├── backend/               # Dockerfile, php.ini, entrypoint.sh
+│   └── web/                   # Dockerfile, nginx default.conf
+├── .github/prompts/           # újrahasznosítható Copilot promptok
+├── docker-compose.yml
+├── .env.example
 ├── README.md
 └── docs/
 ```
@@ -483,4 +617,10 @@ A projektben jelenleg nincs formalizált branching stratégia dokumentálva, de 
 | Hiba | Lehetséges oka | Megoldás |
 | --- | --- | --- |
 | 403 jogosultsági hiba | nincs admin státusz | `status` mező ellenőrzése, Sanctum token validálása |
-| `Undefined array key 
+| admin státusz után sem látszik az admin felület | a frontend a régi `user` objektumot tárolja a `localStorage`-ban | ki- és újra bejelentkezés |
+| Docker build közben `certificate verify failed` / `UNABLE_TO_VERIFY_LEAF_SIGNATURE` | a vírusirtó HTTPS-ellenőrzése (pl. Avast Web-pajzs) | a HTTPS-ellenőrzés ideiglenes kikapcsolása a build idejére |
+| 502 Bad Gateway a `localhost:8080`-on | a `backend` konténer nem fut vagy nem egészséges | `docker compose ps`, `docker compose logs backend` |
+| 413 képfeltöltéskor | túl nagy kép | `client_max_body_size` (`docker/web/default.conf`) és `upload_max_filesize` (`docker/backend/php.ini`), jelenleg 32 MB |
+| checkout 503 | nincs beállítva a `STRIPE_SECRET` | a kulcs beírása a megfelelő `.env`-be, majd `docker compose up -d backend` |
+| nem jön meg a rendelés-visszaigazoló e-mail | EmailJS domain-korlátozás vagy elfogyott keret | böngészőkonzol `EmailJS hiba:` sora; az EmailJS felületén az Account → Security oldalon a domain engedélyezése |
+| a XAMPP phpMyAdmin nem mutatja az adatokat | a Docker MySQL külön adatbázis | a `http://localhost:8081` phpMyAdmin használata |

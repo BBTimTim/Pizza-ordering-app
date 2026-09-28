@@ -19,16 +19,19 @@ class ProductController extends Controller
                 ->latest()
                 ->paginate(8);
         }
+
         return response()->json([
-            'data' => $products
+            'data' => $products,
         ], 200);
     }
 
     public function show($id)
     {
         $product = Product::findOrFail($id);
+
         return response($product);
     }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -44,7 +47,7 @@ class ProductController extends Controller
 
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = time().'.'.$image->getClientOriginalExtension();
             $image->move(public_path('uploads/products/'), $imageName);
 
             $product->image = $imageName;
@@ -53,64 +56,64 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => 'Sikeres feltöltés!',
-            'data' => $product
+            'data' => $product,
         ], 200);
     }
-
 
     public function featured()
     {
         $featuredProducts = Product::where(['is_featured' => 'yes', 'status' => 'active'])->latest()->get();
 
         return response()->json([
-            'data' =>  $featuredProducts
+            'data' => $featuredProducts,
         ], 200);
     }
 
     public function popular()
     {
         $popularItems = Product::withSum('orderItems', 'quantity')
-                                    ->orderByDesc('order_items_sum_quantity')
-                                    ->get();
+            ->orderByDesc('order_items_sum_quantity')
+            ->get();
 
         return response()->json([
-            'data' =>  $popularItems
+            'data' => $popularItems,
         ], 200);
     }
 
     public function update(Request $request, $id)
     {
 
-         $validated = $request->validate([
-        'name' => ['required'],
-        'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
-        'description' => ['required', 'max:255'],
-        'status' => ['required', 'in:active,block'],
-        'is_featured' => ['required', 'in:yes,no'],
-        'price' => ['required', 'numeric', 'min:0'],
-    ]);
+        $validated = $request->validate([
+            'name' => ['required'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg'],
+            'description' => ['required', 'max:255'],
+            'status' => ['required', 'in:active,block'],
+            'is_featured' => ['required', 'in:yes,no'],
+            'price' => ['required', 'numeric', 'min:0'],
+        ]);
 
-    $product = Product::findOrFail($id);
+        $product = Product::findOrFail($id);
 
-    $product->update($validated);
+        $product->update($validated);
 
         if ($request->hasFile('image')) {
             if ($product->image) {
                 File::delete(
-                    public_path('uploads/products/' . $product->image)
+                    public_path('uploads/products/'.$product->image)
                 );
-            };
+            }
 
             $image = $request->file('image');
-            $imageName = time() . '.' . $image->getClientOriginalExtension();
+            $imageName = time().'.'.$image->getClientOriginalExtension();
             $image->move(public_path('uploads/products'), $imageName);
 
             $product->image = $imageName;
             $product->save();
         }
+
         return response()->json([
             'success' => 'Sikeres módosítva!',
-            'data' => $product
+            'data' => $product,
         ], 200);
     }
 
@@ -119,10 +122,11 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         if ($product->image) {
             File::delete(
-                public_path('uploads/products/' . $product->image)
+                public_path('uploads/products/'.$product->image)
             );
-        };
+        }
         $product->delete();
+
         return response()->json(['success' => 'Sikeresen törölve!'], 200);
     }
 }

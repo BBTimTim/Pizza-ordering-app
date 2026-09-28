@@ -1,7 +1,8 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 const baseQuery = fetchBaseQuery({
-   baseUrl: 'http://127.0.0.1:8000/api',
+   // Dockerben "/api" (lásd docker/web/Dockerfile)
+   baseUrl: import.meta.env.VITE_API_URL ?? 'http://127.0.0.1:8000/api',
 
    prepareHeaders: (headers, {getState}) => {
     const token = getState().auth.token
@@ -15,6 +16,6 @@ const baseQuery = fetchBaseQuery({
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery,
-  endpoints: (builder) => ({}),
+  endpoints: () => ({}),
 });
 

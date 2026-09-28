@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from "./components/redux/auth/authSlice.js";
 import Modal from "./components/common/Modal.jsx";
 import ConfirmationModal from "./components/common/ConfirmationModal.jsx";
-import { ModalContext } from "./components/context/ModalContext.jsx";
+import { ModalContext } from "./components/context/ModalContext";
 
 const Register = React.lazy(() => import("./components/user/Register"));
 const Login = React.lazy(() => import("./components/user/Login"));
@@ -36,6 +36,7 @@ const Toppings = React.lazy(() => import("./components/admin/Toppings.jsx"),);
 const Sizes = React.lazy(() => import("./components/admin/Sizes.jsx"),);
 const AdminProfile = React.lazy(() => import("./components/admin/Profile"),);
 
+const AdminOrders = React.lazy(() => import("./components/admin/Orders.jsx"),);
 const AdminProducts = React.lazy(() => import("./components/admin/Products.jsx"),);
 const Editproduct = React.lazy(() => import("./components/admin/Editproduct.jsx"),);
 const AminLayout = React.lazy(() => import("./components/admin/Layout.jsx"),);
@@ -80,6 +81,7 @@ function App() {
               
                    <Route element={<AdminRoutes />}>
                       <Route path="admin" element={<AminLayout />}>
+                        <Route path="orders" element={<AdminOrders />} />
                         <Route path="addproducts" element={<AddProducts />} />
                         <Route path="addtoppings" element={<AddToppings />} />
                         <Route path="addsizes" element={<AddSizes />} />
@@ -91,7 +93,7 @@ function App() {
                        </Route> 
                   </Route>
               </Routes>
-              {open &&  <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
+              {open && modalType === "logout" && <Modal onConfirm={handleLogout}>Biztosan kijelentkezel?</Modal>}
               {open && modalType === "confirmation" && cartItems.length > 0 && <ConfirmationModal onConfirm={handleCart}>Vásárlás folytatása vagy megrendelés leadása?</ConfirmationModal>}
         </Suspense>
       </ErrorBoundary>

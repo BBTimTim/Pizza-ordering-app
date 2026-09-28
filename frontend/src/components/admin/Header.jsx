@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { IoMdSearch } from "react-icons/io";
 import { RiLogoutCircleRFill } from "react-icons/ri";
 import { ModalContext } from "../context/ModalContext";
@@ -40,7 +40,7 @@ export default function Header() {
                 <li>
                   <button
                     type="button"
-                    onClick={() => handleOpen("logOut")}
+                    onClick={() => handleOpen("logout")}
                     className="group flex items-center h-8 w-8 hover:w-26 overflow-hidden rounded-full bg-red-600 text-white transition-all duration-300 ease-in-out"
                   >
                     <div className="flex min-w-8 items-center justify-center">

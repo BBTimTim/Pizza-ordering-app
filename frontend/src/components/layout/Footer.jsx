@@ -1,4 +1,3 @@
-import React from "react";
 import ShowMap from "../map/ShowMap";
 
 export default function Footer() {

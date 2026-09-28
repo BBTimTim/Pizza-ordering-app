@@ -4,8 +4,12 @@ import { apiSlice } from "../../../app/api/apiSlice";
 export const orderSlice = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
 
+// Admin: összes rendelés, opcionális státuszszűrővel (lapozott válasz)
 getOrders: builder.query({
-  query: () => "/orders",
+  query: ({ status = "", page = 1 } = {}) => ({
+    url: "/orders",
+    params: { page, ...(status && { status }) },
+  }),
   providesTags: (result) =>
     result?.data
       ? [
@@ -25,42 +29,50 @@ getOrder: builder.query({
   ],
 }),
 
-addOrder: builder.mutation({
-      query: (product) => ({
-        url: "/addorder",
+// Bejelentkezett vásárló saját rendelései
+getMyOrders: builder.query({
+  query: () => "/my-orders",
+  providesTags: ["MyOrders"],
+}),
+
+// Rendelés létrehozása: a szerver számolja az árat, és Stripe client_secret-et ad vissza
+checkout: builder.mutation({
+      query: (order) => ({
+        url: "/checkout",
         method: "POST",
-        body: product,
+        body: order,
       }),
-       invalidatesTags: ["Orders"],
     }),
 
-updateOrder: builder.mutation({
-  query: ({ id, body }) => ({
-    url: `/editorder/${id}`,
+confirmPayment: builder.mutation({
+      query: (id) => ({
+        url: `/orders/${id}/confirm-payment`,
+        method: "POST",
+      }),
+       invalidatesTags: ["Orders", "MyOrders"],
+    }),
+
+updateOrderStatus: builder.mutation({
+  query: ({ id, status }) => ({
+    url: `/orders/${id}/status`,
     method: "POST",
-    body
+    body: { status },
   }),
 
   invalidatesTags: (result, error, { id }) => [
     { type: "Orders", id },
     "Orders",
+    "MyOrders",
   ],
 }),
-
-removeOrder: builder.mutation({
-      query: (id) => ({
-        url: `/orders/${id}`,
-        method: "DELETE",
-      }),
-       invalidatesTags: ["Orders"],
-    }),
   }),
 });
 
 export const {
   useGetOrdersQuery,
   useGetOrderQuery,
-  useAddOrderMutation,
-  useUpdateOrderMutation,
-  useRemoveOrderMutation
+  useGetMyOrdersQuery,
+  useCheckoutMutation,
+  useConfirmPaymentMutation,
+  useUpdateOrderStatusMutation,
 } = orderSlice;

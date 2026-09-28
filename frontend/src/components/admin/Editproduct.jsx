@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 import { useParams } from "react-router-dom";
@@ -59,22 +59,24 @@ const [updateProduct, { data } ] = useUpdateProductMutation();
   }
 };
 
-  useEffect(() => {
-  if (product) {
+  // Az űrlap a termék (újra)betöltésekor töltődik ki – renderelés közben, effekt nélkül
+  const [loadedProduct, setLoadedProduct] = useState(null);
+  if (product && product !== loadedProduct) {
+    setLoadedProduct(product);
     setEdit({
         name: product.name || "",
         description: product.description || "",
         status: product.status || "",
         is_featured: product.is_featured || "no",
         price: product.price || 0,
+        image: null,
     });
-     setImagePreview(
+    setImagePreview(
       product.image
         ? `${img_url}/products/${product.image}`
         : null
     );
   }
-}, [product]);
 
 
   return (

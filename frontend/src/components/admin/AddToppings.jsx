@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Errors from "../common/Errors";
 import Loader from "../common/Loader";
 import { useAddToppingMutation } from "../redux/toppings/toppingSlice";

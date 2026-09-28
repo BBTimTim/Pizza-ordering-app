@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Loader from "../common/Loader";
 import { useNavigate } from "react-router-dom";
 import Errors from "../common/Errors";
