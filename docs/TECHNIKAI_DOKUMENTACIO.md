@@ -105,7 +105,8 @@ A projekt két módon futtatható:
 Egyéb:
 
 - verziókezelés: Git
-- CI/CD: jelenleg nincs beüzemeltetett automatizált pipeline
+- CI/CD: GitHub Actions (`.github/workflows/ci.yml`) – lint (ESLint, Pint), tesztek, build, Docker füstteszt, image-publikálás a GHCR-be a `master` ágon
+- deploy minták (blue-green, rolling, VPS zero-downtime), monitoring és backup, AWS konfigurációk: `deploy/`, `ops/` – áttekintés és követelmény-mátrix: [docs/devops/README.md](devops/README.md)
 - logging: Dockerben `docker compose logs`, XAMPP alatt a `storage/logs` könyvtár
 
 ---

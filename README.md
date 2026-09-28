@@ -117,6 +117,7 @@ GET  /api/health
 A részletesebb technikai leírás itt található:
 
 - [docs/TECHNIKAI_DOKUMENTACIO.md](docs/TECHNIKAI_DOKUMENTACIO.md)
+- [docs/devops/README.md](docs/devops/README.md) – DevOps & infra követelmény-mátrix: Docker, CI/CD, deploy minták (blue-green, rolling, zero-downtime), VPS és SSH, monitoring, backup, AWS
 
 ## Megjegyzés
 A projekt lokális fejlesztésre van hangolva. Dockerrel egyetlen címen (`localhost:8080`) fut minden; Docker nélkül a frontend és a backend külön, saját dev szervereken fut.
