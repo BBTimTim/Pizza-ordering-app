@@ -66,11 +66,15 @@ jobs:
       - run: npm run lint
       - run: npm run build
 
-  # 3. Docker: a teljes környezet felépítése és elindítása, majd füstteszt (smoke test)
+  # 3. Docker: a teljes környezet felépítése és elindítása, füstteszt (smoke test),
+  #    majd a master ágon a MÁR kipróbált image-ek feltöltése a GitHub Container Registrybe (ingyenes)
   docker:
-    name: Docker – build és füstteszt
+    name: Docker – build, füstteszt, publikálás
     runs-on: ubuntu-latest
     needs: [backend, frontend]
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -91,45 +95,22 @@ jobs:
         if: always()
         run: docker compose down -v
 
-  # 4. Image-ek publikálása a GitHub Container Registrybe (ingyenes) – csak a master ágon
-  publish:
-    name: Image-ek publikálása (GHCR)
-    runs-on: ubuntu-latest
-    needs: docker
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Image név (a GHCR csak kisbetűt fogad el)
-        run: echo "IMAGE_PREFIX=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/one-more-slice" >> "$GITHUB_ENV"
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
+      # Nem építünk újra: pontosan az az image kerül fel, amelyiket a füstteszt ellenőrzött
+      - name: Bejelentkezés a GHCR-be (csak master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Backend image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/backend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}-backend:latest
-            ${{ env.IMAGE_PREFIX }}-backend:${{ github.sha }}
-
-      - name: Web image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: docker/web/Dockerfile
-          push: true
-          tags: |
-            ${{ env.IMAGE_PREFIX }}-web:latest
-            ${{ env.IMAGE_PREFIX }}-web:${{ github.sha }}
+      - name: Image-ek publikálása (csak master)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          PREFIX="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/one-more-slice"   # a GHCR csak kisbetűt fogad el
+          for NAME in backend web; do
+            docker tag "one-more-slice/$NAME:local" "$PREFIX-$NAME:latest"
+            docker tag "one-more-slice/$NAME:local" "$PREFIX-$NAME:${{ github.sha }}"
+            docker push "$PREFIX-$NAME:latest"
+            docker push "$PREFIX-$NAME:${{ github.sha }}"
+          done
