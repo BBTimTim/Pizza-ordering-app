@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useDispatch, useSelector } from "react-redux";
 import { addItemToCart, clearCart, removeItemFromCart} 
 from "../redux/cart/cartSlice";
@@ -8,6 +9,7 @@ import { Link } from "react-router-dom";
 const { img_url } = config;
 
 export default function Cart() {
+  usePageTitle("Kosár");
   const cartItems = useSelector((state) => state.cart.items);
   const totalAmount = useSelector((state) => state.cart.totalAmount);
   const shippingCharge = useSelector((state) => state.cart.shippingCharge);

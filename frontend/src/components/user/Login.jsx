@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import Loader from "../common/Loader";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +9,7 @@ import { setCredentials } from "../redux/auth/authSlice";
 import { useLoginMutation } from "../redux/auth/authApiSlice";
 
 export default function Login() {
+  usePageTitle("Bejelentkezés");
   const [data, setData] = useState({
     email: "",
     password: "",

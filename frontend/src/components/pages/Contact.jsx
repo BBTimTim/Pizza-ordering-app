@@ -1,9 +1,11 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import emailjs from "@emailjs/browser";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 
 export default function Contact() {
+  usePageTitle("Kapcsolat");
   const [data, setData] = useState({
     name: "",
     email: "",

@@ -1,5 +1,7 @@
+import usePageTitle from "../services/usePageTitle";
 
 export default function About() {
+  usePageTitle("Rólunk");
   return (
     <div className="font font-Poppins bg-black min-h-screen rounded-lg">
       <div className="flex flex-col items-center relative pt-25 overflow-hidden">

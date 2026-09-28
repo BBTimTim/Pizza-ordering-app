@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import "react-international-phone/style.css";
 import { PhoneInput } from "react-international-phone";
@@ -14,6 +15,7 @@ import { sendOrderConfirmation } from "./OrderConfirmation";
 import { formatPrice } from "./orderStatus";
 
 export default function AddOrder() {
+  usePageTitle("Rendelés");
 
   const cart = useSelector((state) => state.cart);
   const cartItems = cart.items;

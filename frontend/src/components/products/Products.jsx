@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
@@ -21,6 +22,7 @@ import Modal from "../common/Modal";
 const { img_url } = config;
 
 export default function Products() {
+  usePageTitle("Pizzák");
   const { handleConfirmationOpen } = useContext(ModalContext);
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();

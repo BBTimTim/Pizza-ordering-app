@@ -1,9 +1,11 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
 import { useRegisterMutation } from "../redux/auth/authApiSlice";
 
 export default function Register() {
+  usePageTitle("Regisztráció");
 
   const [register, setRegister] = useState({
     name: "",

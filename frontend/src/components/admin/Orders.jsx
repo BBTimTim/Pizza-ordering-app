@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import Loader from "../common/Loader";
 import Errors from "../common/Errors";
@@ -5,6 +6,7 @@ import { useGetOrdersQuery, useUpdateOrderStatusMutation } from "../redux/order/
 import { ORDER_STATUSES, PAYMENT_STATUSES, formatDate, formatPrice } from "../order/orderStatus";
 
 export default function Orders() {
+  usePageTitle("Admin – Rendelések");
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(1);
   const { data: orders, isLoading, isFetching } = useGetOrdersQuery({ status, page });

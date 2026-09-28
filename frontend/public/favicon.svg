@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Pizzaszelet: tészta perem, sajt, szalámi -->
+  <path d="M8 14 Q32 2 56 14 L32 60 Z" fill="#F4C04E"/>
+  <path d="M8 14 Q32 2 56 14 L53 20 Q32 9 11 20 Z" fill="#C8782E"/>
+  <circle cx="26" cy="26" r="5" fill="#C0392B"/>
+  <circle cx="39" cy="28" r="4.5" fill="#C0392B"/>
+  <circle cx="32" cy="41" r="4" fill="#C0392B"/>
+</svg>

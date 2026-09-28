@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import Modal from "../common/Modal";
 import { VscEditSparkle } from "react-icons/vsc";
@@ -11,6 +12,7 @@ import Errors from "../common/Errors";
 const { img_url } = config;
 
 export default function Products() {
+  usePageTitle("Admin – Pizzák");
   const { data: products } = useGetProductsQuery();
 
   // Törlés előtt megerősítést kérünk

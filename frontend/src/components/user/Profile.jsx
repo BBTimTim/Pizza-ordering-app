@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../redux/auth/authSlice";
 import { useGetMyOrdersQuery } from "../redux/order/orderSlice";
@@ -5,6 +6,7 @@ import Loader from "../common/Loader";
 import { ORDER_STATUSES, PAYMENT_STATUSES, formatDate, formatPrice } from "../order/orderStatus";
 
 export default function Profile() {
+  usePageTitle("Profilom");
   const user = useSelector(selectCurrentUser);
   const { data: orders, isLoading, isError } = useGetMyOrdersQuery();
 
