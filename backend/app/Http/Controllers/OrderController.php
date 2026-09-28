@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Services\OrderPricing;
 use App\Services\PaymentGateway;
+use App\Services\ShopHours;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -46,7 +47,7 @@ class OrderController extends Controller
     }
 
     // Rendelés létrehozása + Stripe fizetési szándék. Az árakat a szerver számolja.
-    public function checkout(Request $request, OrderPricing $pricing, PaymentGateway $payments)
+    public function checkout(Request $request, OrderPricing $pricing, PaymentGateway $payments, ShopHours $shopHours)
     {
         $validated = $request->validate([
             'name' => ['required', 'max:100'],
@@ -65,6 +66,13 @@ class OrderController extends Controller
         ], [
             'items.required' => 'A kosár üres.',
         ]);
+
+        // Zárva tartás alatt nem lehet rendelni (a frontend is jelzi, de a döntés a szerveré)
+        if (! $shopHours->isOpen()) {
+            return response()->json([
+                'errors' => ['shop' => ['Most zárva vagyunk, ezért nem tudunk rendelést fogadni. '.$shopHours->message().'.']],
+            ], 422);
+        }
 
         if (! config('services.stripe.secret')) {
             return response()->json([

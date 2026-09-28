@@ -9,6 +9,7 @@ use App\Models\Topping;
 use App\Models\User;
 use App\Services\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Laravel\Sanctum\Sanctum;
 use Tests\Fakes\FakePaymentGateway;
 use Tests\TestCase;
@@ -24,6 +25,8 @@ class OrderTest extends TestCase
         parent::setUp();
 
         config(['services.stripe.secret' => 'sk_test_dummy']);
+        // Rögzített, nyitvatartási időpont (kedd 12:00), hogy a teszt hétfőn vagy éjjel is ugyanúgy fusson
+        Carbon::setTestNow(Carbon::parse('2026-09-29 12:00', 'Europe/Budapest'));
         $this->payments = new FakePaymentGateway;
         $this->app->instance(PaymentGateway::class, $this->payments);
     }

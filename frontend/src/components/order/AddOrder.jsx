@@ -13,6 +13,7 @@ import { selectCurrentUser } from "../redux/auth/authSlice";
 import StripePayment from "./StripePayment";
 import { sendOrderConfirmation } from "./OrderConfirmation";
 import { formatPrice } from "./orderStatus";
+import { useGetShopStatusQuery } from "../redux/shop/shopSlice";
 
 export default function AddOrder() {
   usePageTitle("Rendelés");
@@ -43,6 +44,9 @@ export default function AddOrder() {
   const [payment, setPayment] = useState(null);
 
   const [checkout, { isLoading, error }] = useCheckoutMutation();
+  // Zárva tartás alatt nem lehet rendelni (a szerver is elutasítja)
+  const { data: shop } = useGetShopStatusQuery(undefined, { pollingInterval: 60000 });
+  const closed = shop && !shop.open;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -105,6 +109,14 @@ export default function AddOrder() {
       {isLoading && <Loader />}
 
       {error && <Errors errors={error?.data?.errors} />}
+
+      {closed && (
+        <div className="flex justify-center m-5" role="alert">
+          <p className="bg-gray-100 text-gray-800 font-bold rounded-full px-5 py-2 text-center">
+            Most zárva vagyunk, ezért nem tudunk rendelést fogadni. {shop.message}.
+          </p>
+        </div>
+      )}
 
       {payment ? (
         <div className="bg-white px-8 pt-6 pb-8 mb-4 max-w-[600px] mx-auto">
@@ -288,7 +300,7 @@ export default function AddOrder() {
 
     <button
       type="submit"
-      disabled={isLoading || cartItems.length === 0}
+      disabled={isLoading || cartItems.length === 0 || closed}
       className="w-full mt-6 rounded-lg bg-blue-600 py-3 px-4 text-white font-bold hover:bg-blue-700 disabled:opacity-50"
     >
       {isLoading ? "Feldolgozás..." : `Tovább a fizetéshez (${formatPrice(cart.grandTotal)})`}

@@ -304,6 +304,7 @@ Az API gyökere: `/api`
 | POST | `/api/checkout` | rendelés létrehozása szerveroldali árszámítással, Stripe `client_secret` visszaadása |
 | POST | `/api/orders/{id}/confirm-payment` | fizetés ellenőrzése a Stripe-nál, sikeres fizetésnél `paid` státusz |
 | GET | `/api/health` | állapotellenőrzés (adatbázis-kapcsolattal), a Docker healthcheck használja |
+| GET | `/api/shop-status` | nyitvatartás: `open`, `message` (pl. „Zárva – nyitás: holnap 11:00”), heti lista; hétfő zárva, kedd–vasárnap 11:00–22:00 (`config/shop.php`). Zárva tartáskor a `checkout` 422-t ad (`errors.shop`) |
 
 A `register`, `login`, `resetpassword`, `forgetpassword` és `checkout` végpontok percenként 10, a `confirm-payment` 20 kérést fogad (`throttle`), efölött 429-es választ adnak.
 
