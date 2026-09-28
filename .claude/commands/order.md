@@ -1,6 +1,6 @@
 ---
-name: rendeles-arazas
 description: A rendelési és árazási logika módosítása (szállítási díj, méretszorzó, feltétek, fizetés) úgy, hogy a backend és a frontend szinkronban maradjon
+argument-hint: "A kívánt változás leírása"
 ---
 
 # Rendelés és árazás módosítása
@@ -13,7 +13,7 @@ description: A rendelési és árazási logika módosítása (szállítási díj
 - A Stripe a `PaymentGateway` interfészen keresztül érhető el; tesztekben a `tests/Fakes/FakePaymentGateway.php` helyettesíti.
 
 ## Feladat
-${input:valtozas:A kívánt változás leírása}
+$ARGUMENTS
 
 ## Elvárások
 1. Módosítsd a `config/shop.php` / `OrderPricing` logikát, és **ugyanúgy** a `cartSlice.js`-t, hogy a kosárban látott ár egyezzen a fizetendővel.

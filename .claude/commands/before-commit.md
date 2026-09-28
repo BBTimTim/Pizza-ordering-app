@@ -1,5 +1,4 @@
 ---
-name: commit-elott
 description: Commit előtti ellenőrzés – kódstílus, lint, tesztek, build, titkok és dokumentáció
 ---
 
@@ -18,3 +17,6 @@ Nézd át a változásokat (`git status`, `git diff`), és futtasd le:
 5. Javasolj rövid, kisbetűs, angol commit-üzenetet a meglévő `git log` stílusában.
 
 Ne commitolj magadtól, csak foglald össze az eredményt és a javasolt üzenetet.
+
+## Kiegészítés
+$ARGUMENTS

@@ -1,12 +1,12 @@
 ---
-name: uj-vegpont
 description: Új API végpont végigvezetése a Laravel backendtől az RTK Query endpointig, teszttel és dokumentációval
+argument-hint: "Mit csináljon a végpont, és ki érheti el (publikus / bejelentkezett / admin)?"
 ---
 
 # Új végpont (fullstack)
 
 ## Feladat
-${input:vegpont:Mit csináljon a végpont, és ki érheti el (publikus / bejelentkezett / admin)?}
+$ARGUMENTS
 
 ## Lépések
 1. **Útvonal** a `backend/routes/api.php`-ban:

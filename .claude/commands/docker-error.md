@@ -1,6 +1,6 @@
 ---
-name: docker-hibakereses
 description: A Docker Compose fejlesztői környezet indítása, és a gyakori hibák (build, adatbázis, 502, képfeltöltés, e-mail) diagnosztizálása
+argument-hint: "A jelenség vagy a hibaüzenet"
 ---
 
 # Docker környezet indítása és hibakeresés
@@ -11,7 +11,7 @@ description: A Docker Compose fejlesztői környezet indítása, és a gyakori h
 - Indításkor az `entrypoint.sh` lefuttatja: `config:cache`, `migrate --force`, `db:seed --force`.
 
 ## Feladat
-${input:hiba:A jelenség vagy a hibaüzenet}
+$ARGUMENTS
 
 ## Diagnosztika sorrendje
 1. `docker compose ps`: melyik szolgáltatás nem `healthy`?
