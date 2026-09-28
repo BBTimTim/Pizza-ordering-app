@@ -1,0 +1,2 @@
+# A deploy felhasználó root jogot csak erre az egy parancsra kap: a php-fpm kíméletes újratöltésére
+deploy ALL=(root) NOPASSWD: /usr/sbin/service php8.2-fpm reload

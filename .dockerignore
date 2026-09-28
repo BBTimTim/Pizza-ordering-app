@@ -13,3 +13,6 @@ backend/storage/framework/sessions/*
 backend/storage/framework/views/*
 backend/bootstrap/cache/*.php
 backend/tests
+
+# Az eredeti (nagy) termékképek nem kerülnek az image-be – a demó adatok az optimalizált WebP-ket használják
+backend/public/uploads/products/*.png

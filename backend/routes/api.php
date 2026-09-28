@@ -86,5 +86,5 @@ Route::get('health', function () {
         return response()->json(['status' => 'hiba', 'database' => 'nem elérhető'], 503);
     }
 
-    return response()->json(['status' => 'ok', 'database' => 'ok'], 200);
+    return response()->json(['status' => 'ok', 'database' => 'ok', 'version' => config('app.version')], 200);
 });

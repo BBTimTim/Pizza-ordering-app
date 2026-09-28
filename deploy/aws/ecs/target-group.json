@@ -1,0 +1,14 @@
+{
+  "Name": "one-more-slice",
+  "Protocol": "HTTP",
+  "Port": 80,
+  "VpcId": "vpc-0dddddddddddddddd",
+  "TargetType": "ip",
+  "HealthCheckProtocol": "HTTP",
+  "HealthCheckPath": "/api/health",
+  "HealthCheckIntervalSeconds": 15,
+  "HealthCheckTimeoutSeconds": 5,
+  "HealthyThresholdCount": 2,
+  "UnhealthyThresholdCount": 3,
+  "Matcher": { "HttpCode": "200" }
+}

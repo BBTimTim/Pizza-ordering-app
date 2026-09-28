@@ -1,0 +1,35 @@
+# Egyszerű deployment workflow (CD): ha a CI a master ágon zöld, telepíti az alkalmazást egy szerverre.
+# A szerver itt a deploy/vps „VPS” konténer a GitHub gépén (ingyenes bemutató-célpont) –
+# ugyanazokkal a scriptekkel, amelyekkel egy valódi szerverre (pl. AWS Lightsail) telepítenénk SSH-n.
+# Kézzel is indítható: GitHub → Actions → Deploy → Run workflow.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Telepítés a VPS-re (SSH, zero-downtime)
+    runs-on: ubuntu-latest
+    # Csak akkor fut, ha a CI sikeres volt (vagy ha kézzel indították)
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Image-ek buildelése
+        run: docker compose build backend web
+
+      - name: Szerver előkészítése (SSH-kulcs, VPS indítása)
+        run: ./deploy/vps/setup.sh
+
+      - name: Telepítés SSH-n (zero-downtime)
+        run: ./deploy/vps/deploy.sh "$(git rev-parse --short HEAD)"
+
+      - name: Ellenőrzés – a telepített verzió válaszol
+        run: curl --fail --silent http://localhost:8100/api/health | grep "\"version\":\"$(git rev-parse --short HEAD)\""

@@ -2,7 +2,12 @@
 
 # 1. szakasz – közös alap: PHP-FPM a szükséges bővítményekkel
 FROM php:8.2-fpm-alpine AS base
-RUN docker-php-ext-install pdo_mysql opcache
+# gd: képkezelés (termékképek átméretezése, WebP) – a futáshoz kellő könyvtárak maradnak, a fordításhoz kellők törlődnek
+RUN apk add --no-cache libpng libjpeg-turbo libwebp \
+    && apk add --no-cache --virtual .gd-build-deps libpng-dev libjpeg-turbo-dev libwebp-dev \
+    && docker-php-ext-configure gd --with-jpeg --with-webp \
+    && docker-php-ext-install pdo_mysql opcache gd \
+    && apk del .gd-build-deps
 COPY docker/backend/php.ini /usr/local/etc/php/conf.d/zz-app.ini
 WORKDIR /var/www/html
 

@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useContext, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
@@ -21,6 +22,7 @@ import Modal from "../common/Modal";
 const { img_url } = config;
 
 export default function Products() {
+  usePageTitle("Pizzák");
   const { handleConfirmationOpen } = useContext(ModalContext);
   const [page, setPage] = useState(1);
   const [searchParams] = useSearchParams();
@@ -172,7 +174,7 @@ export default function Products() {
                 key={item.id}
                 className="bg-white shadow-md py-5 flex flex-col"
               >
-                <img
+                <img loading="lazy"
                   className="w-full max-w-[300px] h-auto object-cover mx-auto"
                   src={`${img_url}/products/${item?.image}`}
                   alt={item.name}
@@ -218,28 +220,40 @@ export default function Products() {
                     </select>
                   </div>
 
-                  <div className="mt-4">
-                    {toppings?.data?.map((topping) => (
-                      <label
-                        className="flex items-center gap-2 py-1"
-                        htmlFor={`topping-${item.id}-${topping.id}`}
-                        key={topping.id}
-                      >
-                        <input
-                          type="checkbox"
-                          className="checkbox"
-                          id={`topping-${item.id}-${topping.id}`}
-                          name="toppings"
-                          value={topping.id}
-                          onChange={(e) => handleSelect(item.id, e)}
-                        />
+                  {/* Extra feltétek: alapból becsukva, csak aki kér extrát, az nyitja le (több is választható) */}
+                  <details className="mt-4 rounded-lg border border-slate-200 group">
+                    <summary className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm font-bold text-gray-700 select-none">
+                      <span>
+                        Extra feltétek
+                        {(selectedToppings[item.id] || []).length > 0 &&
+                          ` (${(selectedToppings[item.id] || []).length} kiválasztva)`}
+                      </span>
+                      <span className="transition-transform group-open:rotate-180" aria-hidden="true">▾</span>
+                    </summary>
+                    <div className="px-3 pb-2">
+                      {toppings?.data?.map((topping) => (
+                        <label
+                          className="flex items-center gap-2 py-1"
+                          htmlFor={`topping-${item.id}-${topping.id}`}
+                          key={topping.id}
+                        >
+                          <input
+                            type="checkbox"
+                            className="checkbox checkbox-sm"
+                            id={`topping-${item.id}-${topping.id}`}
+                            name="toppings"
+                            value={topping.id}
+                            checked={(selectedToppings[item.id] || []).includes(String(topping.id))}
+                            onChange={(e) => handleSelect(item.id, e)}
+                          />
 
-                        <span className="text-sm">
-                          {topping.name} (+{topping.price} Ft)
-                        </span>
-                      </label>
-                    ))}
-                  </div>
+                          <span className="text-sm">
+                            {topping.name} (+{topping.price} Ft)
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
 
                   <div className="mt-auto pt-6 text-center">
                     <button

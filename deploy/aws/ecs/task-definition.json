@@ -1,0 +1,56 @@
+{
+  "family": "one-more-slice",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::123456789012:role/one-more-slice-ecs-execution",
+  "containerDefinitions": [
+    {
+      "name": "backend",
+      "image": "ghcr.io/bbtimtim/one-more-slice-backend:latest",
+      "essential": true,
+      "portMappings": [{ "containerPort": 9000 }],
+      "environment": [
+        { "name": "APP_ENV", "value": "production" },
+        { "name": "APP_KEY", "value": "base64:IDE-A-SAJAT-KULCS" },
+        { "name": "DB_HOST", "value": "one-more-slice.abcdefghijkl.eu-central-1.rds.amazonaws.com" },
+        { "name": "DB_DATABASE", "value": "onemoreslice" },
+        { "name": "DB_USERNAME", "value": "onemoreslice" },
+        { "name": "DB_PASSWORD", "value": "IDE-A-JELSZO" },
+        { "name": "LOG_CHANNEL", "value": "stderr" }
+      ],
+      "healthCheck": {
+        "command": ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"],
+        "interval": 10,
+        "retries": 3
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/one-more-slice",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    },
+    {
+      "name": "web",
+      "image": "ghcr.io/bbtimtim/one-more-slice-web:latest",
+      "essential": true,
+      "portMappings": [{ "containerPort": 80 }],
+      "environment": [
+        { "name": "BACKEND_HOST", "value": "127.0.0.1" }
+      ],
+      "dependsOn": [{ "containerName": "backend", "condition": "HEALTHY" }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/one-more-slice",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "web"
+        }
+      }
+    }
+  ]
+}

@@ -61,5 +61,6 @@ A frontend és a backend címei környezeti változókból jönnek; új helyen n
 - A `register`, `login`, `resetpassword`, `forgetpassword` és `checkout` végpontokon `throttle:10,1` van.
 
 ### Termékek és képek
-- A termékképek multipart űrlappal töltődnek fel az `addproducts` / `editproduct/{id}` végpontokra (a szerkesztés `POST`, nem `PUT`), és a `backend/public/uploads/products/` mappába kerülnek; a frontend a képek URL-jét a `config.img_url`-ből állítja össze. Módosításkor és törléskor a régi kép törlődik.
+- A termékképek multipart űrlappal töltődnek fel az `addproducts` / `editproduct/{id}` végpontokra (a szerkesztés `POST`, nem `PUT`), és a `backend/public/uploads/products/` mappába kerülnek; a frontend a képek URL-jét a `config.img_url`-ből állítja össze. Módosításkor és törléskor a régi kép törlődik. Mentéskor az `App\Services\ImageOptimizer` legfeljebb 1200 px széles WebP-vé alakítja (GD kell hozzá; a XAMPP PHP-jában nincs, ott az eredeti marad); régi képekhez: `php artisan images:optimize`. A demó seeder a repóban lévő `.webp` fájlokat használja, az eredeti PNG-k nem kerülnek a Docker image-be.
+- Nyelv: `locale` = `hu` (`lang/hu/`, `lang/hu.json`); új validációs mezőnél a magyar nevét a `lang/hu/validation.php` `attributes` részébe kell felvenni. Új frontend oldalnál `usePageTitle("…")` állítja a böngészőfül címét.
 - A termékeknek van `status` (`active` | `block`) és `is_featured` (`yes` | …) mezője, ezek határozzák meg a publikus, a kiemelt és a népszerű listákat. A méreteknek `price_multiplier` szorzójuk van, a feltéteknek fix `price` áruk.

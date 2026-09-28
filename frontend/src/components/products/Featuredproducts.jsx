@@ -25,7 +25,7 @@ export default function Featuredproducts() {
                 >
                   <div className="relative w-[200px] h-[220px] sm:w-[300px] sm:h-[300px] object-cover hover:rotate-[60deg] transition-all duration-500">
                     {item.image && (
-                      <img
+                      <img loading="lazy"
                         src={`${img_url}/products/${item?.image}`}
                         alt={item.name}
                         className="object-contain"

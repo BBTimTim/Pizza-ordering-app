@@ -1,3 +1,4 @@
+import usePageTitle from "../services/usePageTitle";
 import { useState } from "react";
 import Modal from "../common/Modal";
 import { VscEditSparkle } from "react-icons/vsc";
@@ -11,6 +12,7 @@ import Errors from "../common/Errors";
 const { img_url } = config;
 
 export default function Products() {
+  usePageTitle("Admin – Pizzák");
   const { data: products } = useGetProductsQuery();
 
   // Törlés előtt megerősítést kérünk
@@ -59,7 +61,7 @@ const [ removeProduct, {isLoading, isSuccess, error, data }] = useRemoveProductM
           <li className="list-row">
             <div>
               {pizza.image && (
-                <img
+                <img loading="lazy"
                   className="size-12 rounded-sm"
                   alt={pizza.name}
                   src={`${img_url}/products/${pizza?.image}`}

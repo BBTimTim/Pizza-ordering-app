@@ -1,0 +1,123 @@
+# Blue-green deploy bemutató
+# Két teljes alkalmazáspéldány fut egymás mellett (kék és zöld), előttük egy „router” nginx.
+# A felhasználók mindig csak az aktív színt látják; az új verzió a másik színen indul el,
+# és egészség-ellenőrzés után a router egyetlen `nginx -s reload`-dal átvált rá.
+# Indítás: ./up.sh   Deploy: ./deploy.sh v2   Visszaállás: ./rollback.sh   Leállítás: ./down.sh
+
+name: oms-bluegreen
+
+# Közös backend beállítások (YAML anchor), a színek csak az APP_VERSION-ben és a hálózatban térnek el
+x-backend: &backend
+  image: ${BACKEND_IMAGE:-one-more-slice/backend:local}
+  restart: unless-stopped
+  depends_on:
+    db:
+      condition: service_healthy
+  volumes:
+    - uploads:/var/www/html/public/uploads
+    - storage:/var/www/html/storage
+  healthcheck:
+    test: ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"]
+    interval: 3s
+    timeout: 3s
+    retries: 30
+
+x-backend-env: &backend-env
+  APP_ENV: production
+  APP_DEBUG: "false"
+  APP_KEY: ${APP_KEY}
+  APP_URL: http://localhost:8090
+  FRONTEND_URL: http://localhost:8090
+  LOG_CHANNEL: stderr
+  DB_CONNECTION: mysql
+  DB_HOST: db
+  DB_DATABASE: onemoreslice
+  DB_USERNAME: onemoreslice
+  DB_PASSWORD: secret
+
+x-web: &web
+  image: ${WEB_IMAGE:-one-more-slice/web:local}
+  restart: unless-stopped
+  volumes:
+    - uploads:/var/www/uploads:ro
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://127.0.0.1/api/health || exit 1"]
+    interval: 3s
+    timeout: 3s
+    retries: 30
+
+services:
+  # Közös adatbázis: blue-greennél a két szín ugyanazt az adatbázist használja
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: onemoreslice
+      MYSQL_USER: onemoreslice
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: rootsecret
+    volumes:
+      - db-data:/var/lib/mysql
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -prootsecret --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+
+  blue-backend:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      APP_VERSION: ${BLUE_VERSION:-v1}
+    networks:
+      data: {}
+      blue:
+        aliases: [backend]   # a web image nginx-e „backend” néven keresi a php-fpm-et
+
+  blue-web:
+    <<: *web
+    depends_on:
+      blue-backend:
+        condition: service_healthy
+    networks: [blue, edge]
+
+  green-backend:
+    <<: *backend
+    environment:
+      <<: *backend-env
+      APP_VERSION: ${GREEN_VERSION:-v1}
+    networks:
+      data: {}
+      green:
+        aliases: [backend]
+
+  green-web:
+    <<: *web
+    depends_on:
+      green-backend:
+        condition: service_healthy
+    networks: [green, edge]
+
+  # A router: ide érkezik minden kérés, és az active/upstream.conf alapján az aktív színhez továbbítja
+  router:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    volumes:
+      - ./router/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./router/active:/etc/nginx/active:ro
+    networks: [edge]
+
+volumes:
+  db-data:
+  uploads:
+  storage:
+
+# A két szín külön hálózaton van, így mindkettőben a saját backendje válaszol a „backend” névre
+networks:
+  data:
+  blue:
+  green:
+  edge:

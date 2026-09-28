@@ -1,2 +1,12 @@
 # Docker Compose titkai
 .env
+
+# Blue-green állapot (aktív szín)
+deploy/blue-green/router/active/
+
+# VPS bemutató: SSH-kulcsok és ideiglenes build
+deploy/vps/keys/
+deploy/vps/.build/
+
+# Mentések (adatbázis, képek) – nem kerülnek a Gitbe
+backups/
