@@ -82,6 +82,8 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+    // A futó verzió azonosítója (deploy mintáknál látszik belőle, melyik példány válaszol)
+    'version' => env('APP_VERSION', 'dev'),
 
     'asset_url' => env('ASSET_URL', '/'),
 

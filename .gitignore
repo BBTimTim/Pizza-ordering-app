@@ -1,2 +1,5 @@
 # Docker Compose titkai
 .env
+
+# Blue-green állapot (aktív szín)
+deploy/blue-green/router/active/

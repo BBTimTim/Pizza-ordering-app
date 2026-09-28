@@ -169,6 +169,8 @@ class OrderTest extends TestCase
 
     public function test_health_endpoint_reports_ok(): void
     {
-        $this->getJson('/api/health')->assertOk()->assertJson(['status' => 'ok']);
+        config(['app.version' => 'v2']);
+
+        $this->getJson('/api/health')->assertOk()->assertJson(['status' => 'ok', 'version' => 'v2']);
     }
 }
