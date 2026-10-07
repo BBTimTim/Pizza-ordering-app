@@ -13,12 +13,14 @@
       "portMappings": [{ "containerPort": 9000 }],
       "environment": [
         { "name": "APP_ENV", "value": "production" },
-        { "name": "APP_KEY", "value": "base64:IDE-A-SAJAT-KULCS" },
         { "name": "DB_HOST", "value": "one-more-slice.abcdefghijkl.eu-central-1.rds.amazonaws.com" },
         { "name": "DB_DATABASE", "value": "onemoreslice" },
         { "name": "DB_USERNAME", "value": "onemoreslice" },
-        { "name": "DB_PASSWORD", "value": "IDE-A-JELSZO" },
         { "name": "LOG_CHANNEL", "value": "stderr" }
+      ],
+       "secrets": [
+        { "name": "APP_KEY", "valueFrom": "arn:aws:ssm:eu-central-1:123456789012:parameter/one-more-slice/APP_KEY" },
+        { "name": "DB_PASSWORD", "valueFrom": "arn:aws:ssm:eu-central-1:123456789012:parameter/one-more-slice/DB_PASSWORD" }
       ],
       "healthCheck": {
         "command": ["CMD", "php", "-r", "exit(@fsockopen('127.0.0.1', 9000) ? 0 : 1);"],
